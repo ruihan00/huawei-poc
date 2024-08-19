@@ -1,0 +1,18 @@
+services:
+  client:
+    image: hw-client:latest
+    build:
+      context: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+
+  server:
+    image: hw-server:latest
+    build:
+      context: ./server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./server:/app
