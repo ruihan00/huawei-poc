@@ -3,6 +3,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import Webcam from "react-webcam";
 import { BASE_URL } from "../../lib/api";
 import useWebSocket, { ReadyState } from "react-use-websocket";
+import { BASE_URL } from "../../lib/api";
 
 export default function Receiver() {
   // send image every fps
@@ -11,8 +12,7 @@ export default function Receiver() {
     onMessage: (message) => {
       const jsonData = JSON.parse(message.data);
       console.log("Received")
-      console.log(`http://localhost:8080/files/${jsonData.image}`)
-      setImage(`http://localhost:8080/files/${jsonData.image}`);
+      setImage(`${BASE_URL}/files/${jsonData.image}`);
     },
   });
 
