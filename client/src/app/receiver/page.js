@@ -10,6 +10,7 @@ export default function Receiver() {
   const { lastMessage, readyState } = useWebSocket(`${BASE_URL}/ws/receiver`, {
     onMessage: (message) => {
       const jsonData = JSON.parse(message.data);
+      console.log("Received")
       setImage(jsonData.image);
     },
   });

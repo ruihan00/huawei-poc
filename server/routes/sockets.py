@@ -1,13 +1,27 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from utils.image_processor import process_image
-from PIL import Image
-import io
 import json
 from logger import logger
 import base64
+import asyncio
+
 router = APIRouter()
 senders = {}
 receivers = []
+
+async def handle_frame(websocket_host: str, data: str):
+    base64_str = data.split(",")[1]
+    data = await process_image(base64_str)  # Ensure process_image is non-blocking or async if needed
+    logger.debug(f"Received data from {websocket_host}")
+    
+    client_packet = {
+        "camera_id": websocket_host,
+        "image": data
+    }
+    
+    for receiver in receivers:
+        logger.debug(f"Sending data to receiver {receiver.client.host}")
+        await receiver.send_text(json.dumps(client_packet))
 
 @router.websocket("/ws/{client_type}")
 async def websocket_endpoint(websocket: WebSocket, client_type: str):
@@ -27,26 +41,9 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str):
         while True:
             if client_type == "sender":
                 data = await websocket.receive_text()
-                # convert to bytes
-                base64_str = data.split(",")[1]
-
-                data = process_image(base64_str)
-                logger.debug(f"Received data from {websocket.client.host}")
-                
-                
-                client_packet = {
-                    "camera_id": websocket.client.host,
-                    "image": data
-                }
-                
-                for receiver in receivers:
-                    logger.debug(f"Sending data to receiver {receiver.client.host}")
-                    
-                    await receiver.send_text(json.dumps(client_packet))
-
+                asyncio.create_task(handle_frame(websocket.client.host, data))
             else:
                 data = await websocket.receive_text()
-            
     
     except WebSocketDisconnect:
         if client_type == "sender":

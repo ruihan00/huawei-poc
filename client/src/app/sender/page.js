@@ -19,7 +19,6 @@ export default function Sender() {
     if (!imageSrc) {
       return;
     }
-    console.log(`frame: ${imageSrc.length}`);
     return imageSrc;
   }, [webcamRef]);
 
