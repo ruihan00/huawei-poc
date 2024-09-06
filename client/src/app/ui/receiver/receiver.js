@@ -3,7 +3,6 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import Webcam from "react-webcam";
 import { BASE_URL } from "../../lib/api";
 import useWebSocket, { ReadyState } from "react-use-websocket";
-import { BASE_URL } from "../../lib/api";
 
 export default function Receiver() {
   // send image every fps
