@@ -3,9 +3,8 @@ services:
 - type: web
   name: nextjs-static
   runtime: static
-  buildCommand: yarn; yarn build
-  staticPublishPath: out
-  pullRequestPreviewsEnabled: true     # optional
+  buildCommand: npm run build
+  staticPublishPath: .next
   envVars:
   - key: NODE_ENV
     value: production
