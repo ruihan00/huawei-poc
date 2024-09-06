@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useEffect, useCallback } from "react";
 import Webcam from "react-webcam";
-import { BASE_URL } from "../lib/api";
+import { BASE_URL } from "../../lib/api";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 
 export default function Sender() {

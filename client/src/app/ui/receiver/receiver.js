@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useEffect, useCallback, useState } from "react";
 import Webcam from "react-webcam";
-import { BASE_URL } from "../lib/api";
+import { BASE_URL } from "../../lib/api";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 
 export default function Receiver() {
@@ -11,7 +11,8 @@ export default function Receiver() {
     onMessage: (message) => {
       const jsonData = JSON.parse(message.data);
       console.log("Received")
-      setImage(jsonData.image);
+      console.log(`http://localhost:8080/files/${jsonData.image}`)
+      setImage(`http://localhost:8080/files/${jsonData.image}`);
     },
   });
 
@@ -23,7 +24,7 @@ export default function Receiver() {
 
   return (
     <div>
-      <img src={`data:image/png;base64,${image}`} />
+      <img src={image} />
     </div>
   );
 }

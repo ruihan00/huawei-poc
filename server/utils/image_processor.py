@@ -5,5 +5,6 @@ import os
 from logger import logger
 model = Model(".//models/mob-aid.pt")
 async def process_image(image: str) -> str:
-    processed_image, tracked_objs = await process_frame(image)
-    return processed_image
+    file_name, tracked_objs = await process_frame(image)
+
+    return file_name

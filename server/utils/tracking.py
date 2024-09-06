@@ -8,7 +8,7 @@ from ultralytics import YOLO
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from logger import logger
 from concurrent.futures import ThreadPoolExecutor
-
+import uuid
 # Initialize model and tracker
 tracker = DeepSort()
 
@@ -74,8 +74,8 @@ async def process_frame(frame):
         person_durations[obj_id] = duration
 
     # Save image and encode to base64
-    buffered = io.BytesIO()
-    await loop.run_in_executor(executor, lambda: image.save(buffered, format="PNG"))
-    base64_image = await loop.run_in_executor(executor, lambda: base64.b64encode(buffered.getvalue()).decode('utf-8'))
+    file_name = f"{uuid.uuid4()}.png"
+    file_path = f"./files/{file_name}"
+    await loop.run_in_executor(executor, lambda: image.save(file_path, format="PNG"))
     
-    return base64_image, tracked_objects
+    return file_name, tracked_objects
