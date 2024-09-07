@@ -2,6 +2,8 @@ from fastapi import FastAPI, WebSocket
 import socketio
 from routes.sockets import router as socket_router
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -10,6 +12,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/files", StaticFiles(directory="./files"), name="files")
+
 
 app.include_router(socket_router)
 @app.get("/")
