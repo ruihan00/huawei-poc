@@ -1,5 +1,9 @@
-*.env
-*.env.*
+# Python
 __pycache__/
 *.py[cod]
+
+# Secrets
+*.env
+*.env.*
+
 server/files/*.png
