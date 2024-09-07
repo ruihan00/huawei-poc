@@ -6,12 +6,25 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 
 export default function Receiver() {
   // send image every fps
-  const [image, setImage] = useState(null);
   const { lastMessage, readyState } = useWebSocket(`${BASE_URL}/ws/receiver`, {
     onMessage: (message) => {
-      const jsonData = JSON.parse(message.data);
+      const bytes = message.data;
       console.log("Received")
-      setImage(`${BASE_URL}/files/${jsonData.image}`);
+      // setImage(`${BASE_URL}/files/${jsonData.image}`);
+      // Assuming `imageBytes` is an ArrayBuffer or Uint8Array containing the raw image data
+      const blob = new Blob([bytes], { type: 'image/jpeg' }); // Adjust MIME type as needed
+      const newUrl = URL.createObjectURL(blob);
+
+      const img = document.getElementById("result");
+      if (!img) {
+        return;
+      }
+
+      const originalUrl = img.src;
+      img.src = newUrl;
+
+      // Clean up the original URL as it is no longer needed
+      URL.revokeObjectURL(originalUrl);
     },
   });
 
@@ -22,8 +35,8 @@ export default function Receiver() {
   }, [readyState]);
 
   return (
-    <div>
-      <img src={image} />
+    <div id="container">
+      <img id="result"/>
     </div>
   );
 }
