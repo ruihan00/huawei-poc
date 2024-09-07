@@ -41,7 +41,7 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str):
         while True:
             if client_type == "sender":
                 data = await websocket.receive_text()
-                asyncio.create_task(handle_frame(websocket.client.host, data))
+                await handle_frame(websocket.client.host, data)
             else:
                 data = await websocket.receive_text()
     

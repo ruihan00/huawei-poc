@@ -22,13 +22,12 @@ async def process_frame(frame):
     # model = YOLO('yolov8n.pt')
 
     global person_durations, person_entry_times
-    loop = asyncio.get_event_loop()
+    # loop = asyncio.get_event_loop()
 
     # Decode image data and process it in a thread pool
     image_data = base64.b64decode(frame)
 
-    # Load and process image asynchronously
-    image = await loop.run_in_executor(executor, lambda: Image.open(io.BytesIO(image_data)))
+    image = Image.open(io.BytesIO(image_data))
 
     if image.mode != 'RGB':
         image = image.convert('RGB')
@@ -79,6 +78,6 @@ async def process_frame(frame):
     # Save image and encode to base64
     file_name = f"{uuid.uuid4()}.png"
     file_path = f"./files/{file_name}"
-    await loop.run_in_executor(executor, lambda: image.save(file_path, format="PNG"))
+    image.save(file_path, format="PNG")
 
     return file_name, []
