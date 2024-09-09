@@ -13,7 +13,7 @@ RUN npm install
 COPY . .
 
 # Generate .env
-RUN echo "NEXT_PUBLIC_API_URL=https://huawei-poc-web-server.onrender.com:8080" > .env
+RUN echo "NEXT_PUBLIC_API_URL=https://huawei-poc-server-203649101776.us-central1.run.app" > .env
 
 RUN npm run build
 
