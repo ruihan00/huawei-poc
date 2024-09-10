@@ -42,7 +42,14 @@ class Model:
             text_bbox = draw.textbbox((x1, y1), label, font=font)
             text_background = [text_bbox[0], text_bbox[1], text_bbox[2], text_bbox[3]]
             draw.rectangle(text_background, fill="red")
-            draw.text((x1, y1), label, fill="white", font=font)
+            
+            # Falling code
+            w = x2 - x1
+            h = y2 - y1
+            if w / h > 1.4:
+                draw.text((x1, y1), f"Fallen, {label}", fill="red", font=font)
+            else:
+                draw.text((x1, y1), label, fill="white", font=font)
 
         buffered = io.BytesIO()
         image.save(buffered, format="PNG")
