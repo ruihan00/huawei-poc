@@ -10,7 +10,7 @@ from logger import logger
 from concurrent.futures import ThreadPoolExecutor
 import uuid
 # Initialize model and tracker
-tracker = DeepSort()
+tracker = DeepSort(max_age=5)
 
 person_durations = {}
 person_entry_times = {}
@@ -33,7 +33,9 @@ async def process_frame(frame):
         image = image.convert('RGB')
 
     # Run model inference
+    t0 = time.time()
     results = model(image)
+    t1 = time.time()
     
     boxes = results[0].boxes.xyxy.tolist()
     classes = results[0].boxes.cls.tolist()
@@ -53,8 +55,12 @@ async def process_frame(frame):
         detections.append(person)
     
     # Track objects
+    t3 = time.time()
     tracked_objects = tracker.update_tracks(detections, frame=original_image)
+    t4 = time.time()
     
+    print(f"model={t1-t0:.4f}sec tracking={t4-t3:.4f}sec total={t4-t0:.4f}sec")
+
     # Draw on image
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default()
