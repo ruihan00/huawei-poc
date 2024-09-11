@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8080
 
 # Command to run the application using Uvicorn
-ENTRYPOINT ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+ENTRYPOINT ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
