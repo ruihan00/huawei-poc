@@ -12,7 +12,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.mount("/files", StaticFiles(directory="./files"), name="files")
 
 
 app.include_router(socket_router)

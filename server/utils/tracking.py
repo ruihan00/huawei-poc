@@ -22,19 +22,18 @@ async def process_frame(frame):
     model = YOLO('yolov8n.pt')
 
     global person_durations, person_entry_times
-    loop = asyncio.get_event_loop()
-    
+    # loop = asyncio.get_event_loop()
+
     # Decode image data and process it in a thread pool
     image_data = base64.b64decode(frame)
-    
-    # Load and process image asynchronously
-    image = await loop.run_in_executor(executor, lambda: Image.open(io.BytesIO(image_data)))
-    
+
+    image = Image.open(io.BytesIO(image_data))
+
     if image.mode != 'RGB':
         image = image.convert('RGB')
-    
+
     # Run model inference
-    results = await loop.run_in_executor(executor, lambda: model(image))
+    results = model(image)
     
     boxes = results[0].boxes.xyxy.tolist()
     classes = results[0].boxes.cls.tolist()
@@ -42,7 +41,7 @@ async def process_frame(frame):
     confidences = results[0].boxes.conf.tolist()
     original_image = np.array(image)
     detections = []
-
+    
     for box, cls, conf in zip(boxes, classes, confidences):
         if int(cls) != 0 or conf < 0.5:
             continue
@@ -52,10 +51,10 @@ async def process_frame(frame):
         label = f"{name}: {confidence:.2f}"
         person = ([x1, y1, x2, y2], conf, name)
         detections.append(person)
-
+    
     # Track objects
-    tracked_objects = await loop.run_in_executor(executor, lambda: tracker.update_tracks(detections, frame=original_image))
-
+    tracked_objects = tracker.update_tracks(detections, frame=original_image)
+    
     # Draw on image
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default()
@@ -69,13 +68,13 @@ async def process_frame(frame):
         draw.text((x1, y1), f"ID: {obj_id}", fill="white", font=font)
         if obj_id not in person_entry_times:
             person_entry_times[obj_id] = current_time  
-
+    
         duration = current_time - person_entry_times[obj_id] 
         person_durations[obj_id] = duration
 
     # Save image and encode to base64
     file_name = f"{uuid.uuid4()}.png"
     file_path = f"./files/{file_name}"
-    await loop.run_in_executor(executor, lambda: image.save(file_path, format="PNG"))
-    
+    image.save(file_path, format="PNG")
+
     return file_name, tracked_objects

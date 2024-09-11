@@ -18,10 +18,14 @@ async def handle_frame(websocket_host: str, data: str):
         "camera_id": websocket_host,
         "image": data
     }
-    
+
+    filename = f"./files/{data}"
+    with open(filename, 'rb') as f:
+        b = f.read()
+
     for receiver in receivers:
         logger.debug(f"Sending data to receiver {receiver.client.host}")
-        await receiver.send_text(json.dumps(client_packet))
+        await receiver.send_bytes(b)
 
 @router.websocket("/ws/{client_type}")
 async def websocket_endpoint(websocket: WebSocket, client_type: str):
@@ -41,7 +45,7 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str):
         while True:
             if client_type == "sender":
                 data = await websocket.receive_text()
-                asyncio.create_task(handle_frame(websocket.client.host, data))
+                await handle_frame(websocket.client.host, data)
             else:
                 data = await websocket.receive_text()
     
