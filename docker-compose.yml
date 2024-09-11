@@ -7,6 +7,7 @@ services:
       - "3000:3000"
     volumes:
       - ./client:/app
+      - /app/node_modules
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8080
 
