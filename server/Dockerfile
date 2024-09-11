@@ -12,7 +12,9 @@ RUN pip install uvicorn
 COPY pyproject.toml poetry.lock ./
 
 # Install dependencies
-RUN poetry install 
+RUN poetry config virtualenvs.create false
+
+RUN poetry install --no-root
 
 # Copy the rest of the application code
 COPY . .
