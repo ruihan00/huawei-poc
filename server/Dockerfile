@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Install Poetry
 RUN pip install poetry
-
+RUN pip install uvicorn
 # Copy the pyproject.toml and poetry.lock files
 COPY pyproject.toml poetry.lock ./
 
@@ -21,4 +21,4 @@ COPY . .
 EXPOSE 8080
 
 # Command to run the application using Uvicorn
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
