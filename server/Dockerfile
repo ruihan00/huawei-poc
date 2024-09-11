@@ -5,16 +5,11 @@ FROM python:3.11-slim
 # Set the working directory
 WORKDIR /app
 
-# Install Poetry
-RUN pip install poetry
-RUN pip install uvicorn
-# Copy the pyproject.toml and poetry.lock files
-COPY pyproject.toml poetry.lock ./
+# Copy requirements.txt to the container
+COPY requirements.txt .
 
-# Install dependencies
-
-RUN poetry install --no-root
-
+# Install app dependencies
+RUN pip install -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
