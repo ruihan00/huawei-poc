@@ -12,7 +12,6 @@ RUN pip install uvicorn
 COPY pyproject.toml poetry.lock ./
 
 # Install dependencies
-RUN poetry config virtualenvs.create false
 
 RUN poetry install --no-root
 
@@ -23,4 +22,4 @@ COPY . .
 EXPOSE 8080
 
 # Command to run the application using Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
