@@ -18,7 +18,7 @@ if torch.cuda.is_available():
     device = torch.device("cuda")
 else:
     device = torch.device("cpu")
-    
+logger.info(f'Using device: {device}')
 model = YOLO('yolov8n.pt')
 model.to(device)
 
