@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 import uuid
 # Initialize model and tracker
 tracker = DeepSort(max_age=5)
+model = YOLO('yolov8n.pt')
 
 person_durations = {}
 person_entry_times = {}
@@ -19,7 +20,6 @@ person_entry_times = {}
 executor = ThreadPoolExecutor(max_workers=4)
 
 async def process_frame(frame):
-    model = YOLO('yolov8n.pt')
 
     global person_durations, person_entry_times
     # loop = asyncio.get_event_loop()
