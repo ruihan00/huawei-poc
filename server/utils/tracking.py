@@ -8,10 +8,19 @@ from ultralytics import YOLO
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from logger import logger
 from concurrent.futures import ThreadPoolExecutor
+import torch
 import uuid
 # Initialize model and tracker
 tracker = DeepSort(max_age=5)
+if torch.cuda.is_available():
+    torch.cuda.set_device(0)
+
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
+    
 model = YOLO('yolov8n.pt')
+model.to(device)
 
 person_durations = {}
 person_entry_times = {}
