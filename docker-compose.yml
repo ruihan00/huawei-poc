@@ -9,7 +9,7 @@ services:
       - ./client:/app
       - /app/node_modules
     environment:
-      - NEXT_PUBLIC_API_URL=http://34.124.200.3:8080
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
 
   server:
     image: hw-server:latest
