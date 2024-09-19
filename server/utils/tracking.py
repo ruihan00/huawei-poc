@@ -52,6 +52,7 @@ async def process_frame(frame):
     confidences = results[0].boxes.conf.tolist()
     original_image = np.array(image)
     detections = []
+    possible_falls = []
     
     for box, cls, conf in zip(boxes, classes, confidences):
         if int(cls) != 0 or conf < 0.5:
@@ -78,9 +79,21 @@ async def process_frame(frame):
     for obj in tracked_objects:
         obj_id = obj.track_id
         x1, y1, x2, y2 = obj.to_ltrb()
-        logger.info(f"Object ID: {obj_id}, Bounding Box: ({x1}, {y1}, {x2}, {y2})")
-        draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
-        draw.text((x1, y1), f"ID: {obj_id}", fill="white", font=font)
+        
+        # Falling code
+        w = x2 - x1
+        h = y2 - y1
+        if w / h > 1.4:
+            draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+            draw.text((x1, y1), f"ID: {obj_id} FALLEN", fill="red", font=font)
+            logger.info(f"Object ID: {obj_id}, Bounding Box: ({x1}, {y1}, {x2}, {y2}), Fallen")
+            possible_falls.append(obj_id)
+        else:
+            draw.rectangle([x1, y1, x2, y2], outline="green", width=2)
+            
+            draw.text((x1, y1), f"ID: {obj_id}", fill="white", font=font)
+            logger.info(f"Object ID: {obj_id}, Bounding Box: ({x1}, {y1}, {x2}, {y2})")
+
         if obj_id not in person_entry_times:
             person_entry_times[obj_id] = current_time  
     
