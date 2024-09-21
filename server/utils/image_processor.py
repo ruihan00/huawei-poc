@@ -1,6 +1,5 @@
 import io
 from PIL import Image
-from utils.model import Model
 from utils.tracking import process_frame
 import os
 from logger import logger

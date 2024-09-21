@@ -6,25 +6,16 @@ import io
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import torch
-from utils.model import Model
+from models import Model
 from logger import logger
 from ultralytics import YOLO
 
-if torch.cuda.is_available():
-    torch.cuda.set_device(0)
-    device = torch.device("cuda")
-else:
-    device = torch.device("cpu")
-logger.info(f'Using device: {device}')
 
-model_yolo = YOLO('yolov8n.pt')
-model_yolo.to(device)
+model_yolo = Model('models/yolov8n.pt')
 
 tracker = DeepSort(max_age=5)
 
-model_mob_aid = Model("./models/mob-aid.pt")
-# TODO: Also set Mob Aid to CUDA
-# model_mob_aid.to(device)
+model_mob_aid = Model("models/mob-aid.pt")
 
 
 person_durations = {}
@@ -37,29 +28,16 @@ async def process_frame(base64_img: str):
     #     image = image.convert('RGB')
 
     # 1. First model to get objects
-    results = model_yolo(image)
+    results = model_yolo.predict(image)
 
-    boxes = results[0].boxes.xyxy.tolist()
-    classes = results[0].boxes.cls.tolist()
-    names = results[0].names
-    confidences = results[0].boxes.conf.tolist()
     detections = []
 
-    # Filter unhelpful results
-    for box, cls, conf in zip(boxes, classes, confidences):
-        if int(cls) != 0 or conf < 0.5:
-            continue
-        x1, y1, x2, y2 = box
-        confidence = conf
-        name = names[int(cls)]
-        label = f"{name}: {confidence:.2f}"
-        person = ([x1, y1, x2, y2], conf, name)
-        detections.append(person)
-
     # 2. Tracker for AI to tell what objects are same between frames
+    tracked_objs = tracker.update_tracks(
+        [(result.box, result.conf, result.name) for result in results],
+        frame=np.array(image))
     current_time = time.time()
-    tracked_objects = tracker.update_tracks(detections, frame=np.array(image))
-    for obj in tracked_objects:
+    for obj in tracked_objs:
         obj_id = obj.track_id
 
         if obj_id not in person_entry_times:
@@ -76,7 +54,7 @@ async def process_frame(base64_img: str):
     # 4. Draw all the objects together
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default()
-    for obj in tracked_objects:
+    for obj in tracked_objs:
         obj_id = obj.track_id
         x1, y1, x2, y2 = obj.to_ltrb()
         # name = names[int(cls)]
