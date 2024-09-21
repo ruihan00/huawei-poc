@@ -25,7 +25,10 @@ export default function Sender({ fps }) {
       return;
     }
     console.log("Sending frame");
-    sendMessage(imageSrc);
+    sendMessage(JSON.stringify({
+      timestamp: new Date().toISOString(),
+      image: imageSrc,
+    }));
   };
 
   useEffect(() => {
