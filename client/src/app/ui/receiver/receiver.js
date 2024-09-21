@@ -10,10 +10,10 @@ export default function Receiver() {
     filter: () => false, // don't re-render on new websocket msg
     onMessage: (message) => {
       const bytes = message.data;
-      console.log("Received")
+      console.log("Received");
       // setImage(`${BASE_URL}/files/${jsonData.image}`);
       // Assuming `imageBytes` is an ArrayBuffer or Uint8Array containing the raw image data
-      const blob = new Blob([bytes], { type: 'image/jpeg' }); // Adjust MIME type as needed
+      const blob = new Blob([bytes], { type: "image/jpeg" }); // Adjust MIME type as needed
       const newUrl = URL.createObjectURL(blob);
 
       const img = document.getElementById("result");
@@ -37,7 +37,7 @@ export default function Receiver() {
 
   return (
     <div id="container">
-      <img id="result"/>
+      <img id="result" />
     </div>
   );
 }
