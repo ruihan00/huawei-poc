@@ -7,6 +7,7 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 export default function Receiver() {
   // send image every fps
   const { lastMessage, readyState } = useWebSocket(`${BASE_URL}/ws/receiver`, {
+    filter: () => false, // don't re-render on new websocket msg
     onMessage: (message) => {
       const bytes = message.data;
       console.log("Received")
