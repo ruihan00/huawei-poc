@@ -1,17 +1,15 @@
 import base64
 import time
-import uuid
-from deep_sort_realtime.deepsort_tracker import DeepSort
 import io
-from PIL import Image, ImageDraw, ImageFont
+
 import numpy as np
-import torch
+from deep_sort_realtime.deepsort_tracker import DeepSort
+from PIL import Image, ImageDraw, ImageFont
+
 from models import Model
-from logger import logger
-from ultralytics import YOLO
 
 
-model_yolo = Model('models/yolov8n.pt')
+model_yolo = Model("models/yolov8n.pt")
 
 tracker = DeepSort(max_age=5)
 
@@ -20,6 +18,8 @@ model_mob_aid = Model("models/mob-aid.pt")
 
 person_durations = {}
 person_entry_times = {}
+
+
 async def process_frame(base64_img: str):
     # Convert from base64
     image_data = base64.b64decode(base64_img)
@@ -35,7 +35,8 @@ async def process_frame(base64_img: str):
     # 2. Tracker for AI to tell what objects are same between frames
     tracked_objs = tracker.update_tracks(
         [(result.box, result.conf, result.name) for result in results],
-        frame=np.array(image))
+        frame=np.array(image),
+    )
     current_time = time.time()
     for obj in tracked_objs:
         obj_id = obj.track_id
@@ -46,10 +47,8 @@ async def process_frame(base64_img: str):
         duration = current_time - person_entry_times[obj_id]
         person_durations[obj_id] = duration
 
-
     # 3. Second model to detect mobility aids
     # results = model_mob_aid(image)
-
 
     # 4. Draw all the objects together
     draw = ImageDraw.Draw(image)

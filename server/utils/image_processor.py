@@ -1,12 +1,12 @@
 from datetime import datetime
 import io
-from PIL import Image
-from utils.tracking import process_frame
+
 from PIL import Image, ImageDraw, ImageFont
-import os
-from logger import logger
+
+from utils.tracking import process_frame
 
 DOWNSCALE = None
+
 
 async def process_image(base64_img: str) -> bytes:
     # client_packet = {

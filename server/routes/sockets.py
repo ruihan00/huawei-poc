@@ -1,12 +1,10 @@
 from datetime import datetime
-import io
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
 from shapes.sender_message import SenderMessage
 from utils.image_processor import process_image
-import json
 from logger import logger
-import base64
-import asyncio
 
 router = APIRouter()
 senders = {}
@@ -35,14 +33,16 @@ async def websocket_endpoint(ws: WebSocket):
                 logger.debug(f"Sending data to receiver {host}")
                 await receiver.send_bytes(b)
 
-            request_time = datetime.fromisoformat(message.timestamp).replace(tzinfo=None)  # JS Date is tz-aware
+            request_time = datetime.fromisoformat(message.timestamp).replace(
+                tzinfo=None
+            )  # JS Date is tz-aware
             response_time = datetime.now()
             logger.debug(f"Response latency: {response_time - request_time}")
-
 
     except WebSocketDisconnect:
         senders.pop(ws.client.host, None)
         logger.info(f"Sender {ws.client.host} disconnected")
+
 
 @router.websocket("/ws/receiver")
 async def websocket_endpoint(ws: WebSocket):

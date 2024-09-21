@@ -15,7 +15,8 @@ app.add_middleware(
 
 
 app.include_router(socket_router)
+
+
 @app.get("/")
 async def root():
     return {"message": "CCTV System Server is Running"}
-

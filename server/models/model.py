@@ -1,12 +1,11 @@
-import base64
-import io
-from typing import List
-from PIL import Image, ImageDraw, ImageFont
-from logger import logger
+from dataclasses import dataclass
+
+from PIL import Image
 import torch
 from ultralytics import YOLO
 
-from dataclasses import dataclass
+from logger import logger
+
 
 @dataclass
 class ModelResult:
@@ -24,13 +23,12 @@ class Model:
             device = torch.device("cuda")
         else:
             device = torch.device("cpu")
-        logger.info(f'Using device: {device}')
+        logger.info(f"Using device: {device}")
 
         self.model = YOLO(model_path)
         self.model.to(device)
 
-
-    def predict(self, image: Image) -> List[ModelResult]:
+    def predict(self, image: Image) -> list[ModelResult]:
         results = self.model(image)
 
         boxes = results[0].boxes.xyxy.tolist()
@@ -38,7 +36,7 @@ class Model:
         names = results[0].names
         confidences = results[0].boxes.conf.tolist()
 
-        results: List[ModelResult] = []
+        results: list[ModelResult] = []
 
         for box, cls, conf in zip(boxes, classes, confidences):
             # Filter unhelpful results
