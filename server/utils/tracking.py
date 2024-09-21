@@ -86,9 +86,4 @@ async def process_frame(base64_img: str):
         # text_background = [text_bbox[0], text_bbox[1], text_bbox[2], text_bbox[3]]
         # draw.rectangle(text_background, fill="red")
 
-    # Save image and encode to base64
-    file_name = f"{uuid.uuid4()}.png"
-    file_path = f"./files/{file_name}"
-    image.save(file_path, format="PNG")
-
-    return file_name, None
+    return image, None
