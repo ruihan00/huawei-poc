@@ -4,13 +4,9 @@ import Webcam from "react-webcam";
 import { BASE_URL } from "../../lib/api";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 
-export default function Sender() {
-  const fps = 5;
-  const interval = 1000 / fps;
+export default function Sender({ fps }) {
   const webcamRef = useRef(null);
-  const { sendMessage, readyState } = useWebSocket(
-    `${BASE_URL}/ws/sender`
-  );
+  const { sendMessage, readyState } = useWebSocket(`${BASE_URL}/ws/sender`);
   const [isClient, setIsClient] = useState(false);
 
   const capture = useCallback(() => {
@@ -27,24 +23,35 @@ export default function Sender() {
       return;
     }
     console.log("Sending frame");
-    sendMessage(imageSrc);
+    sendMessage(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        image: imageSrc,
+      }),
+    );
   };
 
   useEffect(() => {
+    console.log({ readyState, fps });
     setIsClient(true); // Ensure this is running in the browser
 
-    if (readyState === ReadyState.OPEN) {
-      console.log("Connected");
-      const intervalId = setInterval(handleFrameUpload, interval);
-      return () => clearInterval(intervalId);
+    if (readyState !== ReadyState.OPEN) {
+      return;
     }
-  }, [readyState]);
+
+    console.log("Updating FPS");
+    const interval = 1000 / fps;
+    const intervalId = setInterval(handleFrameUpload, interval);
+
+    return () => {
+      console.log("Interval cleared");
+      clearInterval(intervalId);
+    };
+  }, [readyState, fps]);
 
   return (
     <div>
-      {isClient && (
-        <Webcam ref={webcamRef} height={720} width={1280} />
-      )}
+      {isClient && <Webcam ref={webcamRef} height={720} width={1280} />}
     </div>
   );
 }
