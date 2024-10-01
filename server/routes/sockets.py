@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -27,11 +28,10 @@ async def websocket_endpoint(ws: WebSocket):
             # Remove "data:image/webp;base64,"
             base64_img = message.image.split(",")[1]
 
-            b = await process_image(base64_img)
-
+            response = await process_image(base64_img)
             for receiver in receivers:
                 logger.debug(f"Sending data to receiver {host}")
-                await receiver.send_bytes(b)
+                await receiver.send_text(response.model_dump_json())
 
             request_time = datetime.fromisoformat(message.timestamp).replace(
                 tzinfo=None
