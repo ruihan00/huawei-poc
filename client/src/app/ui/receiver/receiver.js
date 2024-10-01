@@ -14,7 +14,8 @@ const blobFromBase64String = base64String => {
 };
 
 export default function Receiver() {
-  // send image every fps
+  const [latency, setLatency] = useState();
+
   const { lastMessage, readyState } = useWebSocket(`${BASE_URL}/ws/receiver`, {
     filter: () => false, // don't re-render on new websocket msg
     onMessage: (message) => {
@@ -29,6 +30,9 @@ export default function Receiver() {
       if (!img) {
         return;
       }
+
+      const latency = Date.now() - new Date(data.timestamp);
+      setLatency(latency.toString())
 
       const originalUrl = img.src;
       img.src = newUrl;
@@ -46,6 +50,7 @@ export default function Receiver() {
 
   return (
     <div id="container">
+      <p>Latency: {latency} ms</p>
       <img id="result" />
     </div>
   );

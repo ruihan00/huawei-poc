@@ -7,3 +7,4 @@ class SenderMessage(BaseModel):
 
 class ReceiverMessage(BaseModel):
     image: str
+    timestamp: str = None  # Pass original timestamp back to client

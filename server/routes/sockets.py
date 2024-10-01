@@ -29,6 +29,7 @@ async def websocket_endpoint(ws: WebSocket):
             base64_img = message.image.split(",")[1]
 
             response = await process_image(base64_img)
+            response.timestamp = message.timestamp
             for receiver in receivers:
                 logger.debug(f"Sending data to receiver {host}")
                 await receiver.send_text(response.model_dump_json())
