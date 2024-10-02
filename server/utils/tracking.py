@@ -7,6 +7,7 @@ from deep_sort_realtime.deepsort_tracker import DeepSort
 from PIL import Image, ImageDraw, ImageFont
 
 from models import Model
+from models.model import ModelResult
 
 
 model_yolo = Model("models/yolov8n.pt")
@@ -20,13 +21,8 @@ person_durations = {}
 person_entry_times = {}
 
 
-async def process_frame(base64_img: str):
-    # Convert from base64
-    image_data = base64.b64decode(base64_img)
-    image = Image.open(io.BytesIO(image_data))
-    # if image.mode != 'RGB':
-    #     image = image.convert('RGB')
-
+# Put mainly AI code within this function
+async def process_frame(image: Image) -> list[ModelResult]:
     # 1. First model to get objects
     results = model_yolo.predict(image)
 
@@ -50,17 +46,5 @@ async def process_frame(base64_img: str):
     # 3. Second model to detect mobility aids
     # results = model_mob_aid(image)
 
-    # 4. Draw all the objects together
-    draw = ImageDraw.Draw(image)
-    font = ImageFont.load_default()
-    for obj in tracked_objs:
-        obj_id = obj.track_id
-        x1, y1, x2, y2 = obj.to_ltrb()
-        # name = names[int(cls)]
-        # label = f"{name}: {confidence:.2f}"
-        draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
-        # text_bbox = draw.textbbox((x1, y1), label, font=font)
-        # text_background = [text_bbox[0], text_bbox[1], text_bbox[2], text_bbox[3]]
-        # draw.rectangle(text_background, fill="red")
 
-    return image, None
+    return results

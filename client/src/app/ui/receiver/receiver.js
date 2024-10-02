@@ -3,23 +3,38 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import Webcam from "react-webcam";
 import { BASE_URL } from "../../lib/api";
 import useWebSocket, { ReadyState } from "react-use-websocket";
+import Box from "./box";
+
+const blobFromBase64String = base64String => {
+  const byteArray = Uint8Array.from(
+    atob(base64String)
+      .split('')
+      .map(char => char.charCodeAt(0))
+  );
+ return new Blob([byteArray], { type: 'image/png' });
+};
 
 export default function Receiver() {
-  // send image every fps
+  const [latency, setLatency] = useState();
+  const [boxes, setBoxes] = useState([]);
+
   const { lastMessage, readyState } = useWebSocket(`${BASE_URL}/ws/receiver`, {
     filter: () => false, // don't re-render on new websocket msg
     onMessage: (message) => {
-      const bytes = message.data;
+      const data = JSON.parse(message.data);
       console.log("Received");
-      // setImage(`${BASE_URL}/files/${jsonData.image}`);
-      // Assuming `imageBytes` is an ArrayBuffer or Uint8Array containing the raw image data
-      const blob = new Blob([bytes], { type: "image/jpeg" }); // Adjust MIME type as needed
+
+      setBoxes(data.objects);
+      const blob = blobFromBase64String(data.image);
       const newUrl = URL.createObjectURL(blob);
 
       const img = document.getElementById("result");
       if (!img) {
         return;
       }
+
+      const latency = Date.now() - new Date(data.timestamp);
+      setLatency(latency.toString())
 
       const originalUrl = img.src;
       img.src = newUrl;
@@ -35,9 +50,22 @@ export default function Receiver() {
     }
   }, [readyState]);
 
+  const draw = boxes.map(box => {
+    console.log("A box is ")
+    console.log({
+      x1: box.box[0],
+      y1: box.box[1]
+    })
+    return <Box x1={box.box[0]} y1={box.box[1]} x2={box.box[2]} y2={box.box[3]}/>
+  })
+
   return (
-    <div id="container">
-      <img id="result" />
-    </div>
+    <>
+      <p>Latency: {latency} ms</p>
+      <div id="container" style={{position: "relative"}}>
+        <img id="result" width={1280}/>
+        {draw}
+      </div>
+    </>
   );
 }

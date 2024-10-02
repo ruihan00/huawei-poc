@@ -6,4 +6,4 @@ __pycache__/
 *.env
 *.env.*
 
-server/files/*.png
+.DS_Store
