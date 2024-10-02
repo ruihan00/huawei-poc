@@ -5,7 +5,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from shapes.sender_message import SenderMessage
 from utils.image_processor import process_image
 from logger import logger
-
+import json
 router = APIRouter()
 senders = {}
 receivers = []
@@ -28,9 +28,12 @@ async def websocket_endpoint(ws: WebSocket):
             base64_img = message.image.split(",")[1]
 
             b = await process_image(base64_img)
-
             for receiver in receivers:
                 logger.debug(f"Sending data to receiver {host}")
+                data = {
+                    "id": host,
+                }
+                await receiver.send_text(json.dumps(data))
                 await receiver.send_bytes(b)
 
             request_time = datetime.fromisoformat(message.timestamp).replace(

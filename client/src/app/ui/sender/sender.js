@@ -27,7 +27,7 @@ export default function Sender({ fps }) {
       JSON.stringify({
         timestamp: new Date().toISOString(),
         image: imageSrc,
-      }),
+      })
     );
   };
 
@@ -50,8 +50,6 @@ export default function Sender({ fps }) {
   }, [readyState, fps]);
 
   return (
-    <div>
-      {isClient && <Webcam ref={webcamRef} height={720} width={1280} />}
-    </div>
+    <div>{isClient && <Webcam ref={webcamRef} height={360} width={640} />}</div>
   );
 }
