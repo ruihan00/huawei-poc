@@ -18,7 +18,7 @@ export default function Receiver() {
   const [latency, setLatency] = useState();
   const [boxes, setBoxes] = useState([]);
 
-  const { lastMessage, readyState } = useWebSocket(`${BASE_URL}/ws/receiver`, {
+  const { lastMessage, readyState } = useWebSocket(`${BASE_URL}/receiver`, {
     filter: () => false, // don't re-render on new websocket msg
     onMessage: (message) => {
       const data = JSON.parse(message.data);

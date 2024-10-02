@@ -7,12 +7,15 @@ from shapes.sender_message import SenderMessage
 from utils.image_processor import process_image
 from logger import logger
 
-router = APIRouter()
+router = APIRouter(prefix="/server")
 senders = {}
 receivers = []
 
+@router.get("/healthcheck")
+async def healthcheck():
+    return {"message": "CCTV System Server is Running"}
 
-@router.websocket("/ws/sender")
+@router.websocket("/sender")
 async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
     host = ws.client.host
@@ -45,7 +48,7 @@ async def websocket_endpoint(ws: WebSocket):
         logger.info(f"Sender {ws.client.host} disconnected")
 
 
-@router.websocket("/ws/receiver")
+@router.websocket("/receiver")
 async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
     host = ws.client.host

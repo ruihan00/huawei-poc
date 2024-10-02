@@ -6,7 +6,7 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 
 export default function Sender({ fps }) {
   const webcamRef = useRef(null);
-  const { sendMessage, readyState } = useWebSocket(`${BASE_URL}/ws/sender`);
+  const { sendMessage, readyState } = useWebSocket(`${BASE_URL}/sender`);
   const [isClient, setIsClient] = useState(false);
 
   const capture = useCallback(() => {
