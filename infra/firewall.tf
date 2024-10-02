@@ -29,15 +29,3 @@ resource "google_compute_firewall" "server_allow_ssh" {
   target_tags = [ "server" ]
 }
 
-# resource "google_compute_firewall" "server_ingress_ssh" {
-#   name    = "example-ssh"
-#   network = google_compute_network.this.id
-#
-#   allow {
-#     protocol = "tcp"
-#     ports    = ["22"]
-#   }
-#
-#   source_ranges = ["<your_IP>/32"]
-# }
-#

@@ -1,12 +1,9 @@
-# Google-managed SSL certificate
+# Google-managed SSL certificates
 resource "google_compute_managed_ssl_certificate" "default" {
   name = "binacloud-ssl-cert"
   
   managed {
-    domains = [
-      # "binacloud.mooo.com"
-      "binacloud.heyzec.dedyn.io"
-    ]
+    domains = [ "binacloud.mooo.com", "binacloud.heyzec.dedyn.io" ]
   }
 }
 
@@ -26,7 +23,7 @@ resource "google_compute_global_forwarding_rule" "default" {
 resource "google_compute_target_https_proxy" "default" {
   name             = "default"
   url_map          = google_compute_url_map.default.self_link
-  ssl_certificates = [google_compute_managed_ssl_certificate.default.self_link]
+  ssl_certificates = [ resource.google_compute_managed_ssl_certificate.default.name ]
 }
 
 # ================================================================================
