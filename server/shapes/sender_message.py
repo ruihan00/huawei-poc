@@ -8,7 +8,7 @@ class SenderMessage(BaseModel):
     image: str
 
 class ReceiverMessage(BaseModel):
-    image: str
+    # image: str
     # NOTE: If needed, create a something like FinalResult to decouple from ModelResult
     objects: list[ModelResult]
     timestamp: str = None  # Pass original timestamp back to client

@@ -25,6 +25,11 @@ export default function Receiver() {
       console.log("Received");
 
       setBoxes(data.objects);
+      const latency = Date.now() - new Date(data.timestamp);
+      setLatency(latency.toString())
+
+      return;
+
       const blob = blobFromBase64String(data.image);
       const newUrl = URL.createObjectURL(blob);
 
@@ -33,8 +38,6 @@ export default function Receiver() {
         return;
       }
 
-      const latency = Date.now() - new Date(data.timestamp);
-      setLatency(latency.toString())
 
       const originalUrl = img.src;
       img.src = newUrl;
