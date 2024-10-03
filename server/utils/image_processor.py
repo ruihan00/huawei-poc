@@ -7,6 +7,8 @@ from PIL import Image, ImageDraw, ImageFont
 from shapes.sender_message import ReceiverMessage
 from utils.tracking import process_frame
 
+from datetime import datetime
+
 DOWNSCALE = None
 
 
@@ -14,6 +16,12 @@ DOWNSCALE = None
 async def process_image(base64_img: str) -> ReceiverMessage:
     image_data = base64.b64decode(base64_img)
     image = Image.open(io.BytesIO(image_data))
+
+    now = datetime.now()
+    time = now.strftime("%H%M%S") + f".{now.microsecond // 1000:03d}"
+
+
+    image.save(f"files/{time}.png")
 
     results = await process_frame(image)
     if DOWNSCALE:
