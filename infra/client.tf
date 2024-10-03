@@ -12,6 +12,8 @@ resource "google_cloud_run_v2_service" "client" {
   }
   lifecycle {
     ignore_changes = [
+      client,
+      client_version,
       template[0].containers[0].image  # Make terraform ignore changes to the image, prevent overwriting deployment
     ]
   }
