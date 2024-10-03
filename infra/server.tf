@@ -10,7 +10,7 @@ resource "google_compute_instance" "server" {
   }
 
   boot_disk {
-    source = resource.google_compute_disk.boot-disk.self_link
+    source = google_compute_disk.boot-disk.self_link
     auto_delete = false
   }
 

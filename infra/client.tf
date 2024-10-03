@@ -44,18 +44,18 @@ resource "google_cloudbuild_trigger" "cloud_run_trigger" {
     step {
       id   = "Build"
       name = "gcr.io/cloud-builders/docker"
-      args = ["build", "-t", "$_AR_HOSTNAME/$PROJECT_ID/${resource.google_artifact_registry_repository.default.repository_id}/$_SERVICE_NAME:$COMMIT_SHA", "client", "-f", "client/Dockerfile.prod"]
+      args = ["build", "-t", "$_AR_HOSTNAME/$PROJECT_ID/${google_artifact_registry_repository.default.repository_id}/$_SERVICE_NAME:$COMMIT_SHA", "client", "-f", "client/Dockerfile.prod"]
     }
     step {
       id   = "Push"
       name = "gcr.io/cloud-builders/docker"
-      args = ["push", "$_AR_HOSTNAME/$PROJECT_ID/${resource.google_artifact_registry_repository.default.repository_id}/$_SERVICE_NAME:$COMMIT_SHA"]
+      args = ["push", "$_AR_HOSTNAME/$PROJECT_ID/${google_artifact_registry_repository.default.repository_id}/$_SERVICE_NAME:$COMMIT_SHA"]
     }
     step {
       id   = "Deploy"
       name = "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
       entrypoint = "gcloud"
-      args = ["run", "services", "update", "$_SERVICE_NAME", "--platform=managed", "--image=$_AR_HOSTNAME/$PROJECT_ID/${resource.google_artifact_registry_repository.default.repository_id}/$_SERVICE_NAME:$COMMIT_SHA", "--region=$_DEPLOY_REGION"]
+      args = ["run", "services", "update", "$_SERVICE_NAME", "--platform=managed", "--image=$_AR_HOSTNAME/$PROJECT_ID/${google_artifact_registry_repository.default.repository_id}/$_SERVICE_NAME:$COMMIT_SHA", "--region=$_DEPLOY_REGION"]
     }
   }
 
@@ -64,7 +64,7 @@ resource "google_cloudbuild_trigger" "cloud_run_trigger" {
     _DEPLOY_REGION = "asia-southeast1"
     _AR_HOSTNAME = "asia-southeast1-docker.pkg.dev"
     _PLATFORM = "managed"
-    _SERVICE_NAME = resource.google_cloud_run_v2_service.client.name
+    _SERVICE_NAME = google_cloud_run_v2_service.client.name
   }
 }
 
@@ -96,10 +96,10 @@ resource "google_artifact_registry_repository" "default" {
 resource "google_artifact_registry_repository_iam_member" "repo_writer" {
   repository   = google_artifact_registry_repository.default.id
   role         = "roles/artifactregistry.writer"
-  member       = "serviceAccount:${resource.google_service_account.cloudbuild_service_account.email}"
+  member       = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
 }
 resource "google_project_iam_member" "service_account_user" {
   project = var.project_id
   role         = "roles/run.developer"
-  member       = "serviceAccount:${resource.google_service_account.cloudbuild_service_account.email}"
+  member       = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
 }

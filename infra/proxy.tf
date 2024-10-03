@@ -62,7 +62,7 @@ resource "google_compute_region_network_endpoint_group" "client-group" {
   name = "client-group"
   region = var.region
   cloud_run {
-    service = "huawei-poc"
+    service = google_cloud_run_v2_service.client.name
   }
 }
 

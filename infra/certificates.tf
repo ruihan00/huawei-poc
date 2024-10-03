@@ -53,7 +53,7 @@ resource "google_certificate_manager_certificate_map" "default" {
 resource "google_certificate_manager_certificate_map_entry" "cert-map-entry-dedyn" {
   name        = "cert-map-entry-dedyn"
   map = google_certificate_manager_certificate_map.default.name 
-  certificates = [google_certificate_manager_certificate.cert-dedyn.id]
+  certificates = [ google_certificate_manager_certificate.cert-dedyn.id ]
   matcher = "PRIMARY"
 }
 
