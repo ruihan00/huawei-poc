@@ -1,10 +1,6 @@
-# Google-managed SSL certificates
-resource "google_compute_managed_ssl_certificate" "default" {
-  name = "binacloud-ssl-cert"
-  
-  managed {
-    domains = [ "binacloud.mooo.com", "binacloud.heyzec.dedyn.io" ]
-  }
+# Reserve a global static IP address
+resource "google_compute_global_address" "default" {
+  name = "default"
 }
 
 # ================================================================================
@@ -12,6 +8,7 @@ resource "google_compute_managed_ssl_certificate" "default" {
 # ================================================================================
 resource "google_compute_global_forwarding_rule" "default" {
   name       = "default"
+  ip_address = google_compute_global_address.default.address
   target     = google_compute_target_https_proxy.default.self_link
   port_range = "443"
   load_balancing_scheme = "EXTERNAL"
@@ -23,7 +20,7 @@ resource "google_compute_global_forwarding_rule" "default" {
 resource "google_compute_target_https_proxy" "default" {
   name             = "default"
   url_map          = google_compute_url_map.default.self_link
-  ssl_certificates = [ resource.google_compute_managed_ssl_certificate.default.name ]
+  certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.default.id}"
 }
 
 # ================================================================================

@@ -31,4 +31,3 @@ resource "google_compute_disk" "boot-disk" {
   size = 100  # 100 GB, the default of 50 GB is not enough
 }
 
-
