@@ -1,3 +1,6 @@
+# Flakes
+.direnv/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -7,3 +10,8 @@ __pycache__/
 *.env.*
 
 .DS_Store
+server/files/*.png
+
+# Terraform
+.terraform*
+terraform.tfstate*
