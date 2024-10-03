@@ -14,20 +14,13 @@ DOWNSCALE = None
 
 # Do additional non-AI processing to results from AI code
 async def process_image(base64_img: str) -> ReceiverMessage:
-    image_data = base64.b64decode(base64_img)
-    image = Image.open(io.BytesIO(image_data))
 
-    now = datetime.now()
-    time = now.strftime("%H%M%S") + f".{now.microsecond // 1000:03d}"
-
-
-    image.save(f"files/{time}.png")
-
-    results = await process_frame(image)
-    if DOWNSCALE:
-        image.thumbnail(
-            tuple(DOWNSCALE * x for x in image.size), Image.Resampling.LANCZOS
-        )
+    # results = await process_frame(image)
+    # if DOWNSCALE:
+    #     image.thumbnail(
+    #         tuple(DOWNSCALE * x for x in image.size), Image.Resampling.LANCZOS
+    #     )
+    results = []
 
     # # 4. Draw all the objects together
     # draw = ImageDraw.Draw(image)

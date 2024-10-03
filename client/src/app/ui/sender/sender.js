@@ -18,17 +18,21 @@ export default function Sender({ fps }) {
   }, [webcamRef]);
 
   const handleFrameUpload = () => {
+    const beforeCaptureTime = new Date().toISOString();
+    console.log(`Capture at ${new Date().toISOString()}`);
     const imageSrc = capture();
+    console.log(`Done capture frame at ${new Date().toISOString()}`);
     if (!imageSrc) {
       return;
     }
-    console.log("Sending frame");
+    console.log(`Sending frame at ${new Date().toISOString()}`);
     sendMessage(
       JSON.stringify({
-        timestamp: new Date().toISOString(),
+        timestamp: beforeCaptureTime,
         image: imageSrc,
       }),
     );
+    console.log(`Done sending frame at ${new Date().toISOString()}`);
   };
 
   useEffect(() => {

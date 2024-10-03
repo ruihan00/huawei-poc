@@ -1,5 +1,9 @@
 from datetime import datetime
+import base64
 import json
+
+import io
+from PIL import Image, ImageDraw, ImageFont
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -14,6 +18,8 @@ receivers = []
 @router.get("/healthcheck")
 async def healthcheck():
     return {"message": "CCTV System Server is Running"}
+
+fmt = lambda time: time.strftime("%H%M%S") + f".{time.microsecond // 1000:03d}"
 
 @router.websocket("/sender")
 async def websocket_endpoint(ws: WebSocket):
@@ -30,6 +36,16 @@ async def websocket_endpoint(ws: WebSocket):
 
             # Remove "data:image/webp;base64,"
             base64_img = message.image.split(",")[1]
+
+            request_time = datetime.fromisoformat(message.timestamp).replace(
+                tzinfo=None
+            )  # JS Date is tz-aware
+
+            image_data = base64.b64decode(base64_img)
+            image = Image.open(io.BytesIO(image_data))
+            now = datetime.now()
+            time = now.strftime("%H%M%S") + f".{now.microsecond // 1000:03d}"
+            image.save(f"files/{fmt(request_time)}---{fmt(datetime.now())}.png")
 
             response = await process_image(base64_img)
             response.timestamp = message.timestamp
