@@ -4,10 +4,15 @@ variable "project_id" {
   default     = "huawei-binacloud"
 }
 
+variable "region" {
+  type        = string
+  default     = "asia-southeast1"
+}
+
 provider "google" {
-    project     = var.project_id
-    region      = "asia-southeast1"
-    zone = "asia-southeast1-a"
+    project = var.project_id
+    region  = var.region
+    zone    = "asia-southeast1-a"
 }
 
 resource "google_storage_bucket" "this" {

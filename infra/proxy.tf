@@ -63,7 +63,7 @@ resource "google_compute_backend_service" "client-service" {
 }
 resource "google_compute_region_network_endpoint_group" "client-group" {
   name = "client-group"
-  region = "us-central1"
+  region = var.region
   cloud_run {
     service = "huawei-poc"
   }
@@ -71,7 +71,7 @@ resource "google_compute_region_network_endpoint_group" "client-group" {
 
 
 # ================================================================================
-# 4b. Client (cloud run) backend service
+# 4b. Server (compute engine) backend service
 # ================================================================================
 resource "google_compute_backend_service" "server-service" {
   name                  = "server-service"

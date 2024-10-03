@@ -7,6 +7,6 @@ resource "google_compute_network" "this" {
 resource "google_compute_subnetwork" "this" {
   name          = "sg-transit-aid-subnet"
   ip_cidr_range = "192.168.24.0/24"
-  region        = "asia-southeast1"
+  region        = var.region
   network       = google_compute_network.this.id
 }
