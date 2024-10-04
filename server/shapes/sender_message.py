@@ -21,7 +21,7 @@ class Event(BaseModel):
     timestamp: str
 
 class ReceiverEventEvent(BaseModel):
-    event: List[Event]
+    events: List[Event]
 
 class ReceiverMessage(BaseModel):
     type: ReceiverEventType

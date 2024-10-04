@@ -10,7 +10,6 @@ export default function Sender({ fps }) {
   const [isClient, setIsClient] = useState(false);
 
   const capture = useCallback(() => {
-    console.log("Capturing frame");
     const imageSrc = webcamRef.current.getScreenshot();
     if (!imageSrc) {
       return;
@@ -23,7 +22,6 @@ export default function Sender({ fps }) {
     if (!imageSrc) {
       return;
     }
-    console.log("Sending frame");
     sendMessage(
       JSON.stringify({
         timestamp: new Date().toISOString(),
@@ -33,19 +31,16 @@ export default function Sender({ fps }) {
   };
 
   useEffect(() => {
-    console.log({ readyState, fps });
     setIsClient(true); // Ensure this is running in the browser
 
     if (readyState !== ReadyState.OPEN) {
       return;
     }
 
-    console.log("Updating FPS");
     const interval = 1000 / fps;
     const intervalId = setInterval(handleFrameUpload, interval);
 
     return () => {
-      console.log("Interval cleared");
       clearInterval(intervalId);
     };
   }, [readyState, fps]);

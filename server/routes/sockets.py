@@ -3,7 +3,7 @@ import json
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from shapes.sender_message import SenderMessage, ReceiverImageEvent, ReceiverMessage, ReceiverEventType
+from shapes.sender_message import SenderMessage, ReceiverImageEvent, ReceiverMessage, ReceiverEventType, ReceiverEventEvent
 from utils.image_processor import process_image
 from logger import logger
 
@@ -33,7 +33,7 @@ async def websocket_endpoint(ws: WebSocket):
         while True:
             message = SenderMessage(**(await ws.receive_json()))
             # Acknowledge receipt
-            ws.send_text(json.dumps({"message": "Received"}))
+            await ws.send_text(json.dumps({"message": "Received"}))
             # Remove "data:image/webp;base64,"
             img = message.image
             base64_img = message.image.split(",")[1]
@@ -43,12 +43,13 @@ async def websocket_endpoint(ws: WebSocket):
                 type=ReceiverEventType.IMAGE, data=image_event
             )
             await broadcast(receiver_message)
-            # response = await process_image(base64_img)
-            # response.timestamp = message.timestamp
-
-            # for receiver in receivers:
-            #     await receiver.send_text(response.model_dump_json())
-
+            events = await process_image(base64_img)
+            if len(events) > 0:
+                event_event = ReceiverEventEvent(events=events)
+                receiver_message = ReceiverMessage(
+                    type=ReceiverEventType.EVENT, data=event_event
+                )
+                await broadcast(receiver_message)
             request_time = datetime.fromisoformat(message.timestamp).replace(
                 tzinfo=None
             )  # JS Date is tz-aware

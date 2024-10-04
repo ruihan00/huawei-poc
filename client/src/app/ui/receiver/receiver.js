@@ -21,8 +21,15 @@ export default function Receiver() {
   const handleImageEvent = (data) => {
     setImage(data.image);
   };
+  const handleEventEvent = (data) => {
+    // edit receiver to handle event events
+    for (const event of data.events) {
+      console.log(event.type, event);
+    }
+  };
   const eventHandlers = {
     image: handleImageEvent,
+    event: handleEventEvent,
   };
   const { sendMessage, lastMessage, readyState } = useWebSocket(
     `${BASE_URL}/receiver`,
@@ -30,7 +37,6 @@ export default function Receiver() {
       filter: () => false, // don't re-render on new websocket msg
       onMessage: (message) => {
         const data = JSON.parse(message.data);
-        console.log("Received", data);
         eventHandlers[data.type](data.data);
         sendMessage("ack");
       },
