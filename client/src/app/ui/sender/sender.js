@@ -10,6 +10,7 @@ export default function Sender({ fps }) {
   const [isClient, setIsClient] = useState(false);
 
   const capture = useCallback(() => {
+    console.log("Capturing frame");
     const imageSrc = webcamRef.current.getScreenshot();
     if (!imageSrc) {
       return;
@@ -27,7 +28,7 @@ export default function Sender({ fps }) {
       JSON.stringify({
         timestamp: new Date().toISOString(),
         image: imageSrc,
-      }),
+      })
     );
   };
 
@@ -50,8 +51,6 @@ export default function Sender({ fps }) {
   }, [readyState, fps]);
 
   return (
-    <div>
-      {isClient && <Webcam ref={webcamRef} width={1280} />}
-    </div>
+    <div>{isClient && <Webcam ref={webcamRef} width={720} height={480} />}</div>
   );
 }

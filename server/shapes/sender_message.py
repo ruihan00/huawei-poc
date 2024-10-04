@@ -1,14 +1,28 @@
 from pydantic import BaseModel
 
 from models.model import ModelResult
-
-
+from enum import Enum
+from typing import List
 class SenderMessage(BaseModel):
     timestamp: str
     image: str
 
-class ReceiverMessage(BaseModel):
+
+class ReceiverEventType(str, Enum):
+    IMAGE = "image"
+    EVENT = "event"
+
+class ReceiverImageEvent(BaseModel):
     image: str
-    # NOTE: If needed, create a something like FinalResult to decouple from ModelResult
-    objects: list[ModelResult]
-    timestamp: str = None  # Pass original timestamp back to client
+
+class Event(BaseModel):
+    type: str
+    url: str
+    timestamp: str
+
+class ReceiverEventEvent(BaseModel):
+    event: List[Event]
+
+class ReceiverMessage(BaseModel):
+    type: ReceiverEventType
+    data: ReceiverImageEvent | ReceiverEventEvent
