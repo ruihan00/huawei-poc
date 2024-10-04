@@ -22,36 +22,30 @@ export default function Sender({ fps }) {
     if (!imageSrc) {
       return;
     }
-    console.log("Sending frame");
     sendMessage(
       JSON.stringify({
         timestamp: new Date().toISOString(),
         image: imageSrc,
-      }),
+      })
     );
   };
 
   useEffect(() => {
-    console.log({ readyState, fps });
     setIsClient(true); // Ensure this is running in the browser
 
     if (readyState !== ReadyState.OPEN) {
       return;
     }
 
-    console.log("Updating FPS");
     const interval = 1000 / fps;
     const intervalId = setInterval(handleFrameUpload, interval);
 
     return () => {
-      console.log("Interval cleared");
       clearInterval(intervalId);
     };
   }, [readyState, fps]);
 
   return (
-    <div>
-      {isClient && <Webcam ref={webcamRef} width={1280} />}
-    </div>
+    <div>{isClient && <Webcam ref={webcamRef} width={720} height={480} />}</div>
   );
 }

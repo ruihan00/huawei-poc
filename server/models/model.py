@@ -31,19 +31,4 @@ class Model:
     def predict(self, image: Image) -> list[ModelResult]:
         results = self.model(image)
 
-        boxes = results[0].boxes.xyxy.tolist()
-        classes = results[0].boxes.cls.tolist()
-        names = results[0].names
-        confidences = results[0].boxes.conf.tolist()
-
-        results: list[ModelResult] = []
-
-        for box, cls, conf in zip(boxes, classes, confidences):
-            # Filter unhelpful results
-            if int(cls) != 0 or conf < self.conf_threshold:
-                continue
-
-            name = names[int(cls)]
-            results.append(ModelResult(box, name, conf))
-
         return results
