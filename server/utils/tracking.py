@@ -12,7 +12,7 @@ from shapes.sender_message import Event
 from .falling import is_falling
 from datetime import datetime
 from logger import logger
-model_yolo = Model("models/yolov8m.pt")
+model_yolo = Model("models/yolov8s.pt")
 tracker = DeepSort(max_age=5)
 ignore_persons = {}
 model_mob_aid = Model("models/mob-aid.pt")
