@@ -1,46 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Menu, theme, Input } from 'antd';
 import mrtData from '../data/mrtData.json';
-
 
 const { useToken } = theme;
 
 const MrtMenu = ({ isDarkMode, setSelectedStation, selectedStation }) => {
   const [searchText, setSearchText] = useState('');
 
-  const { Search } = Input;
   const { token } = useToken();
 
   const lineColors = {
     "NSL": "#FF0000", // Red
-    "EWL": "#00FF00", // Green
+    "EWL": "#004D00", // Green
     "CCL": "#FFA500", // Orange
-    "DTL": "#0000FF", // Blue
+    "DTL": "#000099", // Blue
     "NEL": "#800080", // Purple
-    "TEL": "#A52A2A", // Brown
+    "TEL": "#A5682A", // Brown
   };
 
-  // Function to filter stations based on search text
-  const filterStations = () => {
-    const allStations = Object.values(mrtData).flat();
-    
-    // Ensure allStations exists and is an array before filtering
-    return Array.isArray(allStations)
-      ? allStations.filter((station) =>
-          station.toLowerCase().includes(searchText.toLowerCase())
-        )
-      : [];
-  };
-
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-
-  // Get the line color based on selected station
-  const getLineColor = () => {
-    const line = Object.keys(mrtData).find((line) =>
-      mrtData[line].some((station) => station === selectedStation)
+  const filteredStations = useMemo(() => {
+    const allStations = Object.entries(mrtData).flatMap(([line, stations]) => 
+      stations.map(station => ({ line, station }))
     );
-    return line ? lineColors[line] : token.colorBgContainer; // Fallback to default
-  };
+    
+    return allStations.filter(({ station }) =>
+      station.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }, [searchText]);
+
+  const getLineColor = (line) => lineColors[line] || token.colorBgContainer;
 
   return (
     <>
@@ -52,32 +40,37 @@ const MrtMenu = ({ isDarkMode, setSelectedStation, selectedStation }) => {
         style={{ margin: '16px', width: 'calc(100% - 32px)' }}
       />
 
-      {/* If there is search input */}
-      {searchText ? (
-        <Search
-          placeholder="input search text"
-          allowClear
-          onSearch={onSearch}
-          style={{
-            width: 200,
-          }}
-        />
-      ) : (
-        /* Regular Menu when there is no search input */
-        <Menu
-          mode="inline"
-          theme={isDarkMode ? 'dark' : 'light'}
-          style={{ maxHeight: 'calc(100vh - 64px)', overflowY: 'auto' }}
-        >
-          {Object.keys(mrtData).map((line) => (
+      <Menu
+        mode="inline"
+        theme={isDarkMode ? 'dark' : 'light'}
+        style={{ maxHeight: 'calc(100vh - 64px)', overflowY: 'auto' }}
+        selectedKeys={[selectedStation]}
+      >
+        {searchText ? (
+          // Render filtered results
+          filteredStations.map(({ line, station }) => (
+            <Menu.Item
+              key={station}
+              onClick={() => setSelectedStation(station, getLineColor(line))}
+              style={{
+                backgroundColor:
+                  station === selectedStation ? getLineColor(line) : 'transparent',
+                color: station === selectedStation ? '#fff' : 'inherit',
+              }}
+            >
+              {`${station} (${line})`}
+            </Menu.Item>
+          ))
+        ) : (
+          // Render full menu when there's no search input
+          Object.entries(mrtData).map(([line, stations]) => (
             <Menu.SubMenu key={line} title={line}>
-              {mrtData[line].map((station) => (
+              {stations.map((station) => (
                 <Menu.Item
                   key={station}
-                  onClick={() => setSelectedStation(station)}
+                  onClick={() => setSelectedStation(station, getLineColor(line))}
                   style={{
-                    backgroundColor:
-                      station === selectedStation ? getLineColor() : 'transparent',
+                    backgroundColor: station === selectedStation ? getLineColor(line) : 'transparent',
                     color: station === selectedStation ? '#fff' : 'inherit',
                   }}
                 >
@@ -85,9 +78,9 @@ const MrtMenu = ({ isDarkMode, setSelectedStation, selectedStation }) => {
                 </Menu.Item>
               ))}
             </Menu.SubMenu>
-          ))}
-        </Menu>
-      )}
+          ))
+        )}
+      </Menu>
     </>
   );
 };

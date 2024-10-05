@@ -22,13 +22,11 @@ const fetchEvents = (location) => {
     });
   };
 
-const Dashboard = ({ location, isDarkMode }) => {
+const Dashboard = ({ location, lineColor }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-
-  const { token } = useToken();
 
   useEffect(() => {
     const getEvents = async () => {
@@ -56,6 +54,7 @@ const Dashboard = ({ location, isDarkMode }) => {
       title: 'S/N',
       dataIndex: 'key',
       key: 'sn',
+      width: '10%',
       render: (text, record, index) => index + 1,
     },
     {
@@ -85,7 +84,21 @@ const Dashboard = ({ location, isDarkMode }) => {
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <h2 style={{ color: token.colorText }}>{`Dashboard for ${location}`}</h2>
+      <h2 style={{ color: '#fff' }}> 
+        <span 
+          style={{ 
+            backgroundColor: lineColor, 
+            color: '#fff',
+            padding: '8px 15px',
+            borderRadius: '20px',
+            display: 'inline-block',
+            fontSize: '1.2em',
+            fontWeight: 'bold'
+          }}
+        >
+          Dashboard for {location}
+        </span>
+      </h2>
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
           <Spin size="large" />

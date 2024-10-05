@@ -3,15 +3,21 @@ import { Layout, Switch, theme } from 'antd';
 import { SunOutlined, SunFilled, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import Dashboard from './Dashboard';
 import MrtMenu from './MrtMenu';
+import logo from '../data/cloud.png';
 
 const { Header, Sider, Content } = Layout;
 const { useToken } = theme;
 
 const AppLayout = ({ isDarkMode, toggleTheme }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const [selectedStation, setSelectedStation] = useState(''); // For MRT station
-
+  const [selectedStation, setSelectedStation] = useState('');
+  const [stationLineColor, setStationLineColor] = useState('');
   const { token } = useToken();
+
+  const handleStationSelection = (station, lineColor) => {
+    setSelectedStation(station);
+    setStationLineColor(lineColor);
+  };
 
   return (
     <Layout style={{ minHeight: '100%' }}>
@@ -25,7 +31,7 @@ const AppLayout = ({ isDarkMode, toggleTheme }) => {
       >
         <MrtMenu
           isDarkMode={isDarkMode} 
-          setSelectedStation={setSelectedStation}
+          setSelectedStation={handleStationSelection}
           selectedStation={selectedStation}
         />
         
@@ -40,7 +46,7 @@ const AppLayout = ({ isDarkMode, toggleTheme }) => {
           })}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <img 
-              src={isDarkMode ? "/path/to/dark-logo.png" : "/path/to/light-logo.png"} 
+              src={logo}
               alt="Company Logo" 
               style={{ height: '32px', marginRight: '16px' }} 
             />
@@ -56,7 +62,7 @@ const AppLayout = ({ isDarkMode, toggleTheme }) => {
 
         <Content style={{ margin: '24px 16px', padding: 24, background: token.colorBgContainer, minHeight: 280 }}>
           {selectedStation ? (
-            <Dashboard location={selectedStation} isDarkMode={isDarkMode} />
+            <Dashboard location={selectedStation} lineColor={stationLineColor} />
           ) : (
             <p>Please select an MRT line and station from the menu.</p>
           )}
