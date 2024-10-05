@@ -45,6 +45,10 @@ const AppLayout = ({ isDarkMode, toggleTheme }) => {
             style: { fontSize: '18px', padding: '0 24px' },
           })}
           <div style={{ display: 'flex', alignItems: 'center' }}>
+            <h1 style={{ color: token.colorText, margin: 0 }}>SGTransaid</h1>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            
             <img 
               src={logo}
               alt="Company Logo" 
