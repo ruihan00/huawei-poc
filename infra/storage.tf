@@ -24,3 +24,15 @@ resource "google_storage_bucket_iam_binding" "public_access" {
     "allUsers"
   ]
 }
+
+resource "google_service_account" "bucket_service_account" {
+  account_id   = "bucket-sa"
+  display_name = "bucket-sa"
+  description  = "Cloud Storage service account"
+}
+resource "google_storage_bucket_iam_member" "bucket_writer" {
+  bucket = google_storage_bucket.events.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.bucket_service_account.email}"
+}
+
