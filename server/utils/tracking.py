@@ -58,9 +58,12 @@ async def create_video(start: int, end: int, person_id:int):
         start = 0
     video_entries = history[start:end]
     # highlight person_id in each frame
+    frames = []
     for entry in video_entries:
         frame = entry["frame"]
+
         frame = frame.copy()
+        
         tracked_objs = entry["tracked_objs"]
         for obj in tracked_objs:
             if obj.track_id == person_id:
@@ -69,11 +72,12 @@ async def create_video(start: int, end: int, person_id:int):
                 draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
                 font = ImageFont.load_default()
                 draw.text((x1, y1), f"Person {person_id}", font=font, fill="red")
+                frames.append(frame)
     # save video to mp4
     video_name = f"videos/{person_id}-{time.time()}.webm"
-    video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 20, (frame.width, frame.height))
-    for entry in video_entries:
-        frame = entry["frame"]
+    
+    video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 5, (frames[0].width, frames[0].height))
+    for frame in frames:
         video_writer.write(cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR))
     
     video_writer.release()

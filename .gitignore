@@ -12,7 +12,8 @@ cred.json
 .DS_Store
 server/files/*.png
 server/images/*.jpg
-server/videos/*.mp4
+server/videos/*
+!server/videos/.gitkeep
 # Terraform
 .terraform*
 terraform.tfstate*
