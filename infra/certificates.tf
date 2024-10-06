@@ -35,15 +35,23 @@ resource "google_certificate_manager_certificate_map" "default" {
   }
 }
 
-resource "google_certificate_manager_certificate_map_entry" "default" {
-  name         = "default"
+resource "google_certificate_manager_certificate_map_entry" "cert-map-entry-mooo" {
+  name         = "cert-map-entry-mooo"
   map          = google_certificate_manager_certificate_map.default.name
   certificates = [
-    google_certificate_manager_certificate.cert-dedyn.id,
     # This is a self-managed cert, it is added from the console
     "projects/${var.project_id}/locations/global/certificates/cert-mooo"
   ]
-  matcher = "PRIMARY"
+  hostname = var.domain-mooo
+}
+
+resource "google_certificate_manager_certificate_map_entry" "cert-map-entry-dedyn" {
+  name         = "cert-map-entry-dedyn"
+  map          = google_certificate_manager_certificate_map.default.name
+  certificates = [
+    google_certificate_manager_certificate.cert-dedyn.id,
+  ]
+  hostname = var.domain-dedyn
 }
 
 
