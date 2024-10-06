@@ -1,3 +1,6 @@
+# ================================================================================
+# Bucket for videos
+# ================================================================================
 resource "google_storage_bucket" "events" {
   name     = "${var.project_id}-events"
   location = "ASIA-SOUTHEAST1"
@@ -28,7 +31,7 @@ resource "google_storage_bucket_iam_binding" "public_access" {
 resource "google_service_account" "bucket_service_account" {
   account_id   = "bucket-sa"
   display_name = "bucket-sa"
-  description  = "Cloud Storage service account"
+  description  = "Account for all storage stuff"
 }
 resource "google_storage_bucket_iam_member" "bucket_writer" {
   bucket = google_storage_bucket.events.name
@@ -36,3 +39,20 @@ resource "google_storage_bucket_iam_member" "bucket_writer" {
   member = "serviceAccount:${google_service_account.bucket_service_account.email}"
 }
 
+# ================================================================================
+# Firestore for events
+# ================================================================================
+resource "google_firestore_database" "events" {
+  name        = "(default)" # THIS IS A MUST NAME
+  location_id = var.region
+  type = "FIRESTORE_NATIVE"
+}
+
+resource "google_project_iam_binding" "firestore_sa_binding" {
+  project = var.project_id
+  role    = "roles/datastore.owner"
+
+  members = [
+    "serviceAccount:${google_service_account.bucket_service_account.email}"
+  ]
+}
