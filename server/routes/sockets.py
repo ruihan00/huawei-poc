@@ -7,6 +7,8 @@ from shapes.sender_message import SenderMessage, ReceiverImageEvent, ReceiverMes
 from utils.image_processor import process_image
 from logger import logger
 
+from utils.external.firestore import EventTable
+
 router = APIRouter(prefix="/server")
 senders = {}
 receivers = []
@@ -18,7 +20,6 @@ async def healthcheck():
 
 async def broadcast(message: ReceiverMessage):
     for receiver in receivers:
-        
         await receiver.send_text(message.json())
 
 @router.websocket("/sender")
@@ -80,3 +81,11 @@ async def websocket_endpoint(ws: WebSocket):
     except WebSocketDisconnect:
         receivers.remove(ws)
         logger.info(f"Receiver {host} disconnected")
+
+
+@router.get("/events")
+async def get_events():
+    events = EventTable.get_events()
+    return events
+
+

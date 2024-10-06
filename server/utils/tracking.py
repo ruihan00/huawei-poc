@@ -5,7 +5,7 @@ import io
 import numpy as np
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from PIL import Image, ImageDraw, ImageFont
-from .push import async_upload_blob
+from utils.external.push import async_upload_blob
 from models import Model
 from models.model import ModelResult
 from shapes.sender_message import Event
@@ -84,7 +84,7 @@ async def create_video(start: int, end: int, person_id:int):
     video_url = await async_upload_blob(video_bytes, "video/webm")
     return video_url
 # Put mainly AI code within this function
-async def process_frame(image: Image) -> list[ModelResult]:
+async def process_frame(image: Image) -> list[Event]:
     # 1. First model to get objects
     results = model_yolo.predict(image)
     events = []
