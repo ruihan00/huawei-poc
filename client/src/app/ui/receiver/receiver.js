@@ -4,7 +4,7 @@ import Webcam from "react-webcam";
 import { BASE_URL } from "../../lib/api";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import Box from "./box";
-
+import { notification } from "antd";
 const blobFromBase64String = (base64String) => {
   const byteArray = Uint8Array.from(
     atob(base64String)
@@ -21,10 +21,23 @@ export default function Receiver() {
   const handleImageEvent = (data) => {
     setImage(data.image);
   };
+  const [api, contextHolder] = notification.useNotification();
+  const openNotification = (event) => {
+    api.info({
+      message: "Alert",
+      description: `Event type: ${event.type}`,
+      onClick: () => {
+        console.log("Notification clicked");
+        window.location.href = redirectLink;
+      },
+      duration: 0, // to prevent auto-close
+    });
+  };
   const handleEventEvent = (data) => {
     // edit receiver to handle event events
     for (const event of data.events) {
       console.log(event.type, event);
+      openNotification(event);
     }
   };
   const eventHandlers = {
@@ -51,6 +64,7 @@ export default function Receiver() {
 
   return (
     <>
+      {contextHolder}
       <p>Latency: {latency} ms</p>
       <div id="container" style={{ position: "relative" }}>
         <img id="result" src={image} />
