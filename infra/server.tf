@@ -1,4 +1,5 @@
 resource "google_compute_instance" "server" {
+  count = var.save-money ? 0 : 1
   name         = "server"
   machine_type = "g2-standard-32"
   allow_stopping_for_update = true  # Otherwise we can't update it inplace!

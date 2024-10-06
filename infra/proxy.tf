@@ -82,8 +82,8 @@ resource "google_compute_backend_service" "server-service" {
 }
 resource "google_compute_instance_group" "server-group" {
   name = "server-group"
-  instances = [
-    google_compute_instance.server.self_link
+  instances = var.save-money ? [] : [
+    google_compute_instance.server.0.self_link
   ]
   named_port {
     name = "http"

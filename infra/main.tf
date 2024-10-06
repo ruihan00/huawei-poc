@@ -1,3 +1,9 @@
+variable "save-money" {
+  description = "Terminate GPU?"
+  type        = bool
+  default     = true
+}
+
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
