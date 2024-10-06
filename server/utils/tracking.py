@@ -70,8 +70,8 @@ async def create_video(start: int, end: int, person_id:int):
                 font = ImageFont.load_default()
                 draw.text((x1, y1), f"Person {person_id}", font=font, fill="red")
     # save video to mp4
-    video_name = f"videos/{person_id}-{time.time()}.mp4"
-    video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'mp4v'), 5, (frame.width, frame.height))
+    video_name = f"videos/{person_id}-{time.time()}.webm"
+    video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 20, (frame.width, frame.height))
     for entry in video_entries:
         frame = entry["frame"]
         video_writer.write(cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR))
@@ -81,7 +81,7 @@ async def create_video(start: int, end: int, person_id:int):
     with open(video_name, "rb") as video_file:
         video_bytes = video_file.read()
     # upload video to cloud
-    video_url = await async_upload_blob(video_bytes, "video/mp4")
+    video_url = await async_upload_blob(video_bytes, "video/webm")
     return video_url
 # Put mainly AI code within this function
 async def process_frame(image: Image) -> list[ModelResult]:
