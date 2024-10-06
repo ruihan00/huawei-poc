@@ -8,10 +8,11 @@ __pycache__/
 # Secrets
 *.env
 *.env.*
-
+cred.json
 .DS_Store
 server/files/*.png
 server/images/*.jpg
+server/videos/*.mp4
 # Terraform
 .terraform*
 terraform.tfstate*

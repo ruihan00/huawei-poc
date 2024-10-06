@@ -46,6 +46,6 @@ export default function Sender({ fps }) {
   }, [readyState, fps]);
 
   return (
-    <div>{isClient && <Webcam ref={webcamRef} width={720} height={480} />}</div>
+    <div>{isClient && <Webcam ref={webcamRef} width={640} height={480} />}</div>
   );
 }

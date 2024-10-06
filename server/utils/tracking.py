@@ -5,18 +5,19 @@ import io
 import numpy as np
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from PIL import Image, ImageDraw, ImageFont
-
+from .push import async_upload_blob
 from models import Model
 from models.model import ModelResult
 from shapes.sender_message import Event
 from .falling import is_falling
 from datetime import datetime
 from logger import logger
-model_yolo = Model("models/yolov8s.pt")
+import cv2
+model_yolo = Model("models/yolov8n.pt")
 tracker = DeepSort(max_age=5)
 ignore_persons = {}
 model_mob_aid = Model("models/mob-aid.pt")
-
+history = []
 
 person_durations = {}
 person_entry_times = {}
@@ -36,6 +37,52 @@ def check_people_ignored():
                 ignore_persons.pop(person_id)
     except RuntimeError:
         pass
+def remove_expired_history(expiry_time):
+    current_time = time.time()
+    for history_item in history:
+        if current_time - history_item["timestamp"] > expiry_time:
+            history.remove(history_item)
+def add_to_history(frame:Image, tracked_objs: list):
+    history_entry = {
+        "id": len(history),
+        "frame": frame,
+        "tracked_objs": tracked_objs,
+        "timestamp": time.time()
+    }
+    history.append(history_entry)
+    return history_entry
+    
+# create a video from 
+async def create_video(start: int, end: int, person_id:int):
+    if start < 0:
+        start = 0
+    video_entries = history[start:end]
+    # highlight person_id in each frame
+    for entry in video_entries:
+        frame = entry["frame"]
+        frame = frame.copy()
+        tracked_objs = entry["tracked_objs"]
+        for obj in tracked_objs:
+            if obj.track_id == person_id:
+                x1, y1, x2, y2 = obj.to_ltrb()
+                draw = ImageDraw.Draw(frame)
+                draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
+                font = ImageFont.load_default()
+                draw.text((x1, y1), f"Person {person_id}", font=font, fill="red")
+    # save video to mp4
+    video_name = f"videos/{person_id}-{time.time()}.mp4"
+    video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'mp4v'), 5, (frame.width, frame.height))
+    for entry in video_entries:
+        frame = entry["frame"]
+        video_writer.write(cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR))
+    
+    video_writer.release()
+    # convert video to bytes
+    with open(video_name, "rb") as video_file:
+        video_bytes = video_file.read()
+    # upload video to cloud
+    video_url = await async_upload_blob(video_bytes, "video/mp4")
+    return video_url
 # Put mainly AI code within this function
 async def process_frame(image: Image) -> list[ModelResult]:
     # 1. First model to get objects
@@ -63,6 +110,7 @@ async def process_frame(image: Image) -> list[ModelResult]:
         detections,
         frame=original_image,
     )
+    frame_id = add_to_history(image, tracked_objs)['id']
     current_time = time.time()
     for obj in tracked_objs:
         obj_id = obj.track_id
@@ -73,29 +121,23 @@ async def process_frame(image: Image) -> list[ModelResult]:
         duration = current_time - person_entry_times[obj_id]
         if obj_id in ignore_persons.keys():
             continue
-        print(f"Person {obj_id} has been in frame for {duration} seconds")
-        print(f"Person {obj_id} is at {x1, y1, x2, y2}")
-        # Temporary code to see fall ratio
-        fall_ratio = (x2 - x1) / (y2 - y1)
-        # draw on image and save as ccurrent time
-        draw = ImageDraw.Draw(image)
-        draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
-        font = ImageFont.load_default()
-        draw.text((x1, y1), f"Person {obj_id}, ratio {fall_ratio}", font=font, fill="red")
-        image.save(f"images/{current_time}.jpg")
 
         # detect fall
         if is_falling(x1, x2, y1, y2):
             print(f"Person {obj_id} is falling, position: {x1, y1, x2, y2}")
-            events.append(Event(type="fall", url="WORK IN PROGRESS", timestamp=get_time_now()))
+            video = await create_video(frame_id - 50, frame_id, obj_id)
+
+            events.append(Event(type="fall", url=video, timestamp=get_time_now()))
             ignore_person_for(obj_id, 10)
         # detect prolonged time in frame
         if duration > 10:
-            events.append(Event(type="Prolonged Time", url="WORK IN PROGRESS", timestamp=get_time_now()))
+            video = await create_video(frame_id - 50, frame_id, obj_id)
+            events.append(Event(type="Prolonged Time", url=video, timestamp=get_time_now()))
             ignore_person_for(obj_id, 20)
         
-        check_people_ignored()
         person_durations[obj_id] = duration
-
+    # remove historical data older than 60 seconds
+    remove_expired_history(180)
+    check_people_ignored()
 
     return events
