@@ -14,7 +14,7 @@ from datetime import datetime
 from logger import logger
 import cv2
 model_yolo = Model("models/yolov8n.pt")
-tracker = DeepSort(max_age=5)
+tracker = DeepSort(max_iou_distance=0.5, max_age=30, n_init=3)
 ignore_persons = {}
 model_mob_aid = Model("models/mob-aid.pt")
 history = []
@@ -58,27 +58,23 @@ async def create_video(start: int, end: int, person_id:int):
         start = 0
     video_entries = history[start:end]
     # highlight person_id in each frame
-    frames = []
-    for entry in video_entries:
-        frame = entry["frame"]
-
-        frame = frame.copy()
-        
-        tracked_objs = entry["tracked_objs"]
+    frames = [(frame['frame'].copy(), frame['tracked_objs']) for frame in video_entries]
+    for frame, tracked_objs in frames:
         for obj in tracked_objs:
-            if obj.track_id == person_id:
-                x1, y1, x2, y2 = obj.to_ltrb()
+            if obj.id == person_id:
+                x1, y1, x2, y2 = obj.box
                 draw = ImageDraw.Draw(frame)
                 draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
                 font = ImageFont.load_default()
                 draw.text((x1, y1), f"Person {person_id}", font=font, fill="red")
-                frames.append(frame)
+            else:
+                frames.remove((frame, tracked_objs))
     # save video to mp4
     video_name = f"videos/{person_id}-{time.time()}.webm"
     
-    video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 5, (frames[0].width, frames[0].height))
+    video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 5, (video_entries[0]['frame'].width, video_entries[0]['frame'].height))
     for frame in frames:
-        video_writer.write(cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR))
+        video_writer.write(cv2.cvtColor(np.array(frame[0]), cv2.COLOR_RGB2BGR))
     
     video_writer.release()
     # convert video to bytes
@@ -92,46 +88,38 @@ async def process_frame(image: Image) -> list[ModelResult]:
     # 1. First model to get objects
     results = model_yolo.predict(image)
     events = []
-    detections = []
-    boxes = results[0].boxes.xyxy.tolist()
-    classes = results[0].boxes.cls.tolist()
-    names = results[0].names
-    confidences = results[0].boxes.conf.tolist()
-    original_image = np.array(image)
-    detections = []
+
     
     # filter low confidence and non-person detections
-    for box, cls, conf in zip(boxes, classes, confidences):
-        if int(cls) != 0 or conf < 0.5:
-            continue
-        x1, y1, x2, y2 = box
-        name = names[int(cls)]
-        person = ([x1, y1, x2, y2], conf, name)
-        detections.append(person)
-        
+    
+    # save a copy of the image with bounding boxes
+    clone_image = image.copy()
+    draw = ImageDraw.Draw(clone_image)
+    
+
     # 2. Tracker for AI to tell what objects are same between frames
-    tracked_objs = tracker.update_tracks(
-        detections,
-        frame=original_image,
-    )
-    frame_id = add_to_history(image, tracked_objs)['id']
+    # tracked_objs = tracker.update_tracks(
+    frame_id = add_to_history(image, results)['id']
     current_time = time.time()
-    for obj in tracked_objs:
-        obj_id = obj.track_id
-        x1, y1, x2, y2 = obj.to_ltrb()
+    for obj in results:
+        obj_id = obj.id
+        x1, y1, x2, y2 = obj.box
         if obj_id not in person_entry_times:
             person_entry_times[obj_id] = current_time
 
         duration = current_time - person_entry_times[obj_id]
         if obj_id in ignore_persons.keys():
             continue
-
+        draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
+        font = ImageFont.load_default()
+        draw.text((x1, y1), f"Person {obj_id}", font=font, fill="red")
+        clone_image.save(f"images/{current_time}.jpg")
         # detect fall
         if is_falling(x1, x2, y1, y2):
             print(f"Person {obj_id} is falling, position: {x1, y1, x2, y2}")
             video = await create_video(frame_id - 50, frame_id, obj_id)
 
-            events.append(Event(type="fall", url=video, timestamp=get_time_now()))
+            events.append(Event(type="Fall", url=video, timestamp=get_time_now()))
             ignore_person_for(obj_id, 10)
         # detect prolonged time in frame
         if duration > 10:
