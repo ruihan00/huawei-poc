@@ -28,7 +28,7 @@ export default function Receiver() {
       description: `Event type: ${event.type}`,
       onClick: () => {
         console.log("Notification clicked");
-        window.location.href = redirectLink;
+        window.location.href = event.url;
       },
       duration: 0, // to prevent auto-close
     });
