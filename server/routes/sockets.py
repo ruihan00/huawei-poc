@@ -43,7 +43,11 @@ async def websocket_endpoint(ws: WebSocket):
                 type=ReceiverEventType.IMAGE, data=image_event
             )
             await broadcast(receiver_message)
-            events = await process_image(base64_img)
+            events = []
+            try:
+                events = await process_image(base64_img)
+            except Exception as e:
+                pass
             if len(events) > 0:
                 event_event = ReceiverEventEvent(events=events)
                 receiver_message = ReceiverMessage(
