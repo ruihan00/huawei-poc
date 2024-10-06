@@ -31,7 +31,6 @@ class Model:
 
     def predict(self, image: Image) -> list[ModelResult]:
         try:
-            results = self.model(image)
             result = self.model.track(image, persist=True)
             boxes = result[0].boxes.xywh.cpu()
             track_ids = result[0].boxes.id.int().cpu().tolist()
