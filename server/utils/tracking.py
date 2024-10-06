@@ -13,7 +13,7 @@ from .falling import is_falling
 from datetime import datetime
 from logger import logger
 import cv2
-model_yolo = Model("models/yolov8n.pt")
+model_yolo = Model("models/yolov8s.pt")
 tracker = DeepSort(max_iou_distance=0.5, max_age=30, n_init=3)
 ignore_persons = {}
 model_mob_aid = Model("models/mob-aid.pt")
