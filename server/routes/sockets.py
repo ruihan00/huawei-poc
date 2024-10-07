@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+from typing import Optional
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -20,7 +21,7 @@ async def healthcheck():
 
 async def broadcast(message: ReceiverMessage):
     for receiver in receivers:
-        await receiver.send_text(message.json())
+        await receiver.send_text(message.model_dump_json())
 
 @router.websocket("/sender")
 async def websocket_endpoint(ws: WebSocket):
@@ -84,8 +85,8 @@ async def websocket_endpoint(ws: WebSocket):
 
 
 @router.get("/events")
-async def get_events():
-    events = EventTable.get_events()
-    return events
-
-
+async def get_events(id: Optional[int] = None):
+    if id:
+        return EventTable.get_event_by_id(id)
+    else:
+        return EventTable.get_events()

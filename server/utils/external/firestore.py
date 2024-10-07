@@ -1,3 +1,5 @@
+from typing import Optional
+
 from google.cloud import firestore
 from google.oauth2 import service_account
 
@@ -14,14 +16,20 @@ class _EventTable:
     def create_event(self, event: Event):
         doc_ref = self.client.collection("events").document()
         doc_ref.set(event.model_dump())
-        print("Document created.")
 
-    def get_events(self):
-        print("Getting events...")
+    def get_events(self) -> list[Event]:
         docs = self.client.collection("events").stream()
-        for doc in docs:
-            print(f"{doc.id} => {doc.to_dict()}")
-        return docs
+        return [Event(**doc.to_dict()) for doc in docs]
+
+    def get_event_by_id(self, event_id) -> Optional[Event]:
+        doc_ref = self.client.collection("events").document(event_id)
+        doc = doc_ref.get()
+
+        if not doc.exists:
+            print(f"No document found for ID: {event_id}")
+            return None
+
+        return Event(**doc.to_dict())
 
 
 EventTable = _EventTable()
