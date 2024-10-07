@@ -14,8 +14,9 @@ class _EventTable:
         self.client = firestore.Client(credentials=credentials)
 
     def create_event(self, event: Event):
-        doc_ref = self.client.collection("events").document()
+        doc_ref = self.client.collection("events").document(event.id)
         doc_ref.set(event.model_dump())
+        return doc_ref.id
 
     def get_events(self) -> list[Event]:
         docs = self.client.collection("events").stream()

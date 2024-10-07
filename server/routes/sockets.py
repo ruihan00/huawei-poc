@@ -49,6 +49,7 @@ async def websocket_endpoint(ws: WebSocket):
             try:
                 events = await process_image(base64_img)
             except Exception as e:
+                logger.error(f"Error processing image: {e}")
                 pass
             if len(events) > 0:
                 event_event = ReceiverEventEvent(events=events)

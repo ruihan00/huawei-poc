@@ -13,6 +13,7 @@ from .falling import is_falling
 from datetime import datetime
 from logger import logger
 import cv2
+import uuid
 model_yolo = Model("models/yolov8s.pt")
 tracker = DeepSort(max_iou_distance=0.5, max_age=30, n_init=3)
 ignore_persons = {}
@@ -89,14 +90,6 @@ async def process_frame(image: Image) -> list[Event]:
     results = model_yolo.predict(image)
     events = []
 
-    
-    # filter low confidence and non-person detections
-    
-    # save a copy of the image with bounding boxes
-    clone_image = image.copy()
-    draw = ImageDraw.Draw(clone_image)
-    
-
     # 2. Tracker for AI to tell what objects are same between frames
     # tracked_objs = tracker.update_tracks(
     frame_id = add_to_history(image, results)['id']
@@ -110,21 +103,18 @@ async def process_frame(image: Image) -> list[Event]:
         duration = current_time - person_entry_times[obj_id]
         if obj_id in ignore_persons.keys():
             continue
-        draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
-        font = ImageFont.load_default()
-        draw.text((x1, y1), f"Person {obj_id}", font=font, fill="red")
-        clone_image.save(f"images/{current_time}.jpg")
+        
         # detect fall
         if is_falling(x1, x2, y1, y2):
             print(f"Person {obj_id} is falling, position: {x1, y1, x2, y2}")
             video = await create_video(frame_id - 50, frame_id, obj_id)
 
-            events.append(Event(type="Fall", url=video, timestamp=get_time_now()))
+            events.append(Event(type="Fall", url=video, timestamp=get_time_now(), id=str(uuid.uuid4())))
             ignore_person_for(obj_id, 10)
         # detect prolonged time in frame
         if duration > 10:
             video = await create_video(frame_id - 50, frame_id, obj_id)
-            events.append(Event(type="Prolonged Time", url=video, timestamp=get_time_now()))
+            events.append(Event(type="Prolonged Time", url=video, timestamp=get_time_now(), id=str(uuid.uuid4())))
             ignore_person_for(obj_id, 20)
         
         person_durations[obj_id] = duration
