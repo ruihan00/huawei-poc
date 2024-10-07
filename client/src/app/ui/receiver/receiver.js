@@ -17,9 +17,14 @@ const blobFromBase64String = (base64String) => {
 export default function Receiver() {
   const [latency, setLatency] = useState();
   const [boxes, setBoxes] = useState([]);
-  const [image, setImage] = useState();
+  const [image, setImage] = useState({});
   const handleImageEvent = (data) => {
-    setImage(data.image);
+    console.log(data);
+    const senderId = data.id;
+    setImage((prev) => ({
+      ...prev,
+      [senderId]: data.image,
+    }));
   };
   const [api, contextHolder] = notification.useNotification();
   const openNotification = (event) => {
@@ -65,9 +70,13 @@ export default function Receiver() {
   return (
     <>
       {contextHolder}
-      <p>Latency: {latency} ms</p>
       <div id="container" style={{ position: "relative" }}>
-        <img id="result" src={image} />
+        {Object.keys(image).map((senderId) => (
+          <div key={senderId}>
+            <img id="result" src={image[senderId]} key={senderId} />
+            <p>{senderId}</p>
+          </div>
+        ))}
       </div>
     </>
   );

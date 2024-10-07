@@ -14,7 +14,7 @@ from datetime import datetime
 from logger import logger
 import cv2
 import uuid
-model_yolo = Model("models/yolov8s.pt")
+model_yolo = Model("models/yolov8n.pt", classes=[0])
 tracker = DeepSort(max_iou_distance=0.5, max_age=30, n_init=3)
 ignore_persons = {}
 model_mob_aid = Model("models/mob-aid.pt")
@@ -90,8 +90,7 @@ async def process_frame(image: Image) -> list[Event]:
     results = model_yolo.predict(image)
     events = []
 
-    # 2. Tracker for AI to tell what objects are same between frames
-    # tracked_objs = tracker.update_tracks(
+
     frame_id = add_to_history(image, results)['id']
     current_time = time.time()
     for obj in results:
@@ -118,7 +117,7 @@ async def process_frame(image: Image) -> list[Event]:
             ignore_person_for(obj_id, 20)
         
         person_durations[obj_id] = duration
-    # remove historical data older than 60 seconds
+    # remove historical data older than 180 seconds
     remove_expired_history(180)
     check_people_ignored()
 

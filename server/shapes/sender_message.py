@@ -13,6 +13,7 @@ class ReceiverEventType(str, Enum):
     EVENT = "event"
 
 class ReceiverImageEvent(BaseModel):
+    id: str
     image: str
 
 class Event(BaseModel):

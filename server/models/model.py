@@ -16,9 +16,9 @@ class ModelResult:
 
 
 class Model:
-    def __init__(self, model_path: str, conf_threshold: int = 0.5) -> None:
+    def __init__(self, model_path: str, conf_threshold: int = 0.5, classes=None) -> None:
         self.conf_threshold = conf_threshold
-
+        self.classes = classes
         if torch.cuda.is_available():
             torch.cuda.set_device(0)
             device = torch.device("cuda")
@@ -37,7 +37,7 @@ class Model:
             cls = result[0].boxes.cls.cpu().tolist()
             detections = []
             for box, track_id, cls in zip(boxes, track_ids, cls):
-                if cls != 0:
+                if self.classes is not None and cls not in self.classes:
                     continue
                 x, y, w, h = box
                 x1, y1, x2, y2 = int(x - w / 2), int(y - h / 2), int(x + w / 2), int(y + h / 2)

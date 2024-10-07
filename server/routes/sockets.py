@@ -9,7 +9,7 @@ from utils.image_processor import process_image
 from logger import logger
 
 from utils.external.firestore import EventTable
-
+import uuid
 router = APIRouter(prefix="/server")
 senders = {}
 receivers = []
@@ -27,8 +27,8 @@ async def broadcast(message: ReceiverMessage):
 async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
     host = ws.client.host
-
-    senders[ws.client.host] = ws
+    host_id = str(uuid.uuid4())
+    senders[host_id] = ws
     logger.info(f"Sender {host} connected")
 
     try:
@@ -40,7 +40,7 @@ async def websocket_endpoint(ws: WebSocket):
             img = message.image
             base64_img = message.image.split(",")[1]
 
-            image_event = ReceiverImageEvent(image=img)
+            image_event = ReceiverImageEvent(image=img, id=host_id)
             receiver_message = ReceiverMessage(
                 type=ReceiverEventType.IMAGE, data=image_event
             )
@@ -64,8 +64,8 @@ async def websocket_endpoint(ws: WebSocket):
             logger.debug(f"Response latency: {response_time - request_time}")
 
     except WebSocketDisconnect:
-        senders.pop(ws.client.host, None)
-        logger.info(f"Sender {ws.client.host} disconnected")
+        senders.pop(host_id, None)
+        logger.info(f"Sender {host_id} disconnected")
 
 
 @router.websocket("/receiver")
