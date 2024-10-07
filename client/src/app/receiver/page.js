@@ -1,4 +1,4 @@
-import Receiver from "./ui/receiver/receiver";
+import Receiver from "../ui/receiver/receiver";
 
 const ReceiverPage = () => {
   return (
