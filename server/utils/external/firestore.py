@@ -9,7 +9,7 @@ from shapes.sender_message import Event
 class _EventTable:
     def __init__(self):
         # Read the service account credentials from a JSON file
-        service_account_file_path = "./creds.json"
+        service_account_file_path = "./cred.json"
         credentials = service_account.Credentials.from_service_account_file(service_account_file_path)
         self.client = firestore.Client(credentials=credentials)
 
