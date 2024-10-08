@@ -5,14 +5,18 @@ from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from shapes.messages import ReceiverProcessedMessage, ReceiverImageMessage, ReceiverMessage, SenderMessage
-from processor.image_processor import process_image
+from processor import Processor
 from utils.logger import logger
 
 from utils.external.firestore import EventTable
 import uuid
+
+
 router = APIRouter(prefix="/server")
 senders = {}
 receivers = []
+
+processor = Processor()
 
 @router.get("/healthcheck")
 async def healthcheck():
@@ -44,7 +48,7 @@ async def websocket_endpoint(ws: WebSocket):
 
             results = None
             try:
-                results = await process_image(base64_img)
+                results = await processor.process_image(base64_img)
             except Exception as e:
                 logger.error(f"Error processing image: {e}")
 
