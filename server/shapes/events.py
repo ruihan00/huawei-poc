@@ -12,10 +12,10 @@ class Event(BaseModel):
     id: str
 
 class FallEvent(Event):
-    type: str = EventType.FALL
+    type: EventType = EventType.FALL
 
 class ProlongedTimeEvent(Event):
-    type: str = EventType.PROLONGED_TIME
+    type: EventType = EventType.PROLONGED_TIME
 
 class ReceiverImageEvent(BaseModel):
     id: str
