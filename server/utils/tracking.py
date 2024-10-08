@@ -18,7 +18,7 @@ import cv2
 import uuid
 
 
-model_yolo = Model("models/yolo11n.pt", classes=[0])
+model_yolo = Model("models/yolov8n.pt", classes=[0])
 tracker = DeepSort(max_iou_distance=0.5, max_age=30, n_init=3)
 ignore_persons = {}
 model_mob_aid = Model("models/mob-aid.pt")
