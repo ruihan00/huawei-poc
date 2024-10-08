@@ -1,8 +1,9 @@
 "use client";
-import { List } from "antd";
+import { List, Splitter, Avatar } from "antd";
 import React, { useState, useEffect } from "react";
 import styles from "./styles.module.css";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { BASE_URL } from "../lib/api";
 
 // Fake data to mock events
 const fakeEvents = Array.from({ length: 50 }, (_, index) => ({
@@ -21,6 +22,9 @@ const HistoryPage = () => {
   const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
+    fetch(`${BASE_URL}/events`).then(data => {
+      console.log(data)
+    })
     console.log("Loading initial data..."); // Debug log
     loadMoreData();
   }, []);
@@ -37,10 +41,6 @@ const HistoryPage = () => {
         setHasMore(false);
       } else {
         setEvents(prevEvents => [...prevEvents, ...newEvents]);
-        if (!selectedEvent) {
-          setSelectedEvent(newEvents[0]); // Select the first event initially
-          setVideo(newEvents[0].videoUrl);
-        }
       }
     } catch (error) {
       console.error("Error loading events:", error);
@@ -56,57 +56,72 @@ const HistoryPage = () => {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.videoPane}>
-        <div className={styles.videoContainer}>
-          {video ? (
-            <video autoPlay={true} controls={true}>
-              <source src={video} type="video/webm" />
-            </video>
-          ) : (
-            <p>123</p>
-          )}
-        </div>
-      </div>
-      <div className={styles.listPane}>
-        <div
-          id="scrollableDiv"
-          style={{
-            height: 400,
-            overflow: "auto",
-            padding: "0 16px",
-            border: "1px solid rgba(140, 140, 140, 0.35)",
-          }}
-        >
-          <InfiniteScroll
-            dataLength={events.length}
-            next={loadMoreData}
-            hasMore={hasMore}
-            scrollableTarget="scrollableDiv"
+    <div style={{
+      backgroundColor: 'white',
+      display: 'flex',
+      height: '100vh',
+      width: '100vw',
+    }}>
+      <Splitter 
+        style={{
+          display: "flex",
+          height: '100%',
+          width: '100%',
+          boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Splitter.Panel defaultSize='40%' minSize='20%' maxSize='70%'>
+          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f2eed7' }}>
+            {video ? (
+              <div>
+                <h1>ID: {selectedEvent.id}</h1>
+                <video autoPlay={true} controls={true} style={{ maxWidth: '100%', maxHeight: '100%' }}>
+                  <source src={video} type="video/webm" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            ) : (
+              <p>Select an event to view it!</p>
+            )}
+          </div>
+        </Splitter.Panel>
+        <Splitter.Panel style={{ height: '100%', overflow: 'hidden' }}>
+          <div
+            id="scrollableDiv"
+            style={{
+              height: '100%',
+              overflow: "auto",
+              padding: "16px",
+              border: "1px solid rgba(140, 140, 140, 0.35)",
+            }}
           >
-            <List
-              dataSource={events}
-              renderItem={(item) => (
-                <List.Item
-                  key={item.id}
-                  onClick={() => showEventDetails(item)}
-                  className={selectedEvent && selectedEvent.id === item.id ? styles.selectedItem : ""}
-                >
-                  <List.Item.Meta
-                    title={item.eventType}
-                    description={
-                      <>
-                        <p>{item.time}</p>
-                        <p>{item.description}</p>
-                      </>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          </InfiniteScroll>
-        </div>
-      </div>
+            <InfiniteScroll
+              dataLength={events.length}
+              next={loadMoreData}
+              hasMore={hasMore}
+              loader={<h4>Loading...</h4>}
+              scrollableTarget="scrollableDiv"
+            >
+              <List
+                dataSource={events}
+                renderItem={(item) => (
+                  <List.Item
+                    key={item.id}
+                    onClick={() => showEventDetails(item)}
+                    className={selectedEvent && selectedEvent.id === item.id ? styles.selectedItem : ""}
+                  >
+                    <List.Item.Meta
+                      avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item.id}`} />}
+                      title={item.eventType}
+                      description={<p>{item.time}</p>}
+                    />
+                  </List.Item>
+                )}
+              />
+            </InfiniteScroll>
+          </div>
+        </Splitter.Panel>
+      </Splitter>
     </div>
   );
 };
