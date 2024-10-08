@@ -5,8 +5,8 @@ from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from shapes.messages import ReceiverProcessedMessage, ReceiverImageMessage, ReceiverMessage, SenderMessage
-from utils.image_processor import process_image
-from logger import logger
+from processor.image_processor import process_image
+from utils.logger import logger
 
 from utils.external.firestore import EventTable
 import uuid

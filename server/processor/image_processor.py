@@ -4,8 +4,7 @@ import traceback
 
 from PIL import Image
 
-from utils.tracking import ProcessorResult, process_frame
-
+from processor.processor import ProcessorResult, process_frame
 from utils.external.firestore import EventTable
 
 DOWNSCALE = None

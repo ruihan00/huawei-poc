@@ -1,22 +1,22 @@
-import base64
 import time
-import io
 import traceback
+import uuid
 
-import numpy as np
-from pydantic import BaseModel
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from PIL import Image, ImageDraw, ImageFont
+from pydantic import BaseModel
 from shapes.events import Event, FallEvent, ProlongedTimeEvent, EventCache
-from utils.external.push import async_upload_blob
+import cv2
+import numpy as np
+
 from models import Model
 from models.model import ModelObject
+from shapes.events import Event, FallEvent, ProlongedTimeEvent
+from utils.external.push import async_upload_blob
+from utils.falling import is_falling
+from utils.logger import logger
+from utils.time import get_formatted_now
 
-from .falling import is_falling
-from datetime import datetime
-from logger import logger
-import cv2
-import uuid
 
 model_yolo = Model("models/yolov8n.pt", classes=[0])
 tracker = DeepSort(max_iou_distance=0.5, max_age=30, n_init=3)
@@ -27,9 +27,6 @@ event_cache = []
 person_durations = {}
 person_entry_times = {}
 # get time in dd:mm:yyyy hh:mm:ss
-
-def get_time_now():
-    return datetime.now().strftime("%d:%m:%Y %H:%M:%S")
 
 def ignore_person_for(person_id, duration):
     ignore_deadline = time.time() + duration
@@ -78,7 +75,7 @@ async def process_events(latest_frame, latest_tracked_objs):
             # upload video to cloud
             video_url = await async_upload_blob(video_bytes, "video/webm", filename=event_id)
 
-    
+
 
 def remove_expired_history(expiry_time):
     current_time = time.time()
@@ -161,7 +158,7 @@ async def process_frame(image: Image) -> ProcessorResult:
             print(f"Person {obj_id} is falling, position: {x1, y1, x2, y2}")
             event_id = str(uuid.uuid4())
             video, video_frames = await create_video(frame_id - 50, frame_id, obj_id, event_id)
-            events.append(FallEvent(url=video, timestamp=get_time_now(), id=event_id))
+            events.append(FallEvent(url=video, timestamp=get_formatted_now(), id=event_id))
             event_cache.append(EventCache(event_id=event_id, person_id=obj_id, frames_left=10, video_frames=video_frames))
             ignore_person_for(obj_id, 10)
 
@@ -169,7 +166,7 @@ async def process_frame(image: Image) -> ProcessorResult:
         if duration > 10:
             event_id = str(uuid.uuid4())
             video, video_frames = await create_video(frame_id - 50, frame_id, obj_id, event_id)
-            events.append(ProlongedTimeEvent(url=video, timestamp=get_time_now(), id=event_id))
+            events.append(ProlongedTimeEvent(url=video, timestamp=get_formatted_now(), id=event_id))
             event_cache.append(EventCache(event_id=event_id, person_id=obj_id, frames_left=10, video_frames=video_frames))
             ignore_person_for(obj_id, 20)
 
