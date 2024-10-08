@@ -16,7 +16,6 @@ router = APIRouter(prefix="/server")
 senders = {}
 receivers = []
 
-processor = Processor()
 
 @router.get("/healthcheck")
 async def healthcheck():
@@ -28,12 +27,15 @@ async def broadcast(message: ReceiverMessage):
         await receiver.send_text(message.model_dump_json())
 
 @router.websocket("/sender")
-async def websocket_endpoint(ws: WebSocket):
+async def sender(ws: WebSocket):
     await ws.accept()
+
     host = ws.client.host
     host_id = str(uuid.uuid4())
     senders[host_id] = ws
     logger.info(f"Sender {host} connected")
+
+    processor = Processor()
 
     try:
         while True:
@@ -67,7 +69,7 @@ async def websocket_endpoint(ws: WebSocket):
 
 
 @router.websocket("/receiver")
-async def websocket_endpoint(ws: WebSocket):
+async def receiver(ws: WebSocket):
     await ws.accept()
     host = ws.client.host
 
