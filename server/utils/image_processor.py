@@ -1,5 +1,6 @@
 import base64
 import io
+import traceback
 
 from PIL import Image
 
@@ -15,7 +16,10 @@ async def process_image(base64_img: str) -> ProcessorResult:
 
     result = await process_frame(image)
 
-    for event in result.events:
-        EventTable.create_event(event)
+    try:
+        for event in result.events:
+            EventTable.create_event(event)
+    except:
+        traceback.print_exc()
 
     return result
