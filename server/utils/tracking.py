@@ -1,19 +1,24 @@
 import base64
 import time
 import io
+import traceback
 
 import numpy as np
+from pydantic import BaseModel
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from PIL import Image, ImageDraw, ImageFont
+from shapes.events import Event, FallEvent, ProlongedTimeEvent
 from utils.external.push import async_upload_blob
 from models import Model
-from models.model import ModelResult
-from shapes.sender_message import Event
+from models.model import ModelObject
+
 from .falling import is_falling
 from datetime import datetime
 from logger import logger
 import cv2
 import uuid
+
+
 model_yolo = Model("models/yolov8n.pt", classes=[0])
 tracker = DeepSort(max_iou_distance=0.5, max_age=30, n_init=3)
 ignore_persons = {}
@@ -23,6 +28,7 @@ history = []
 person_durations = {}
 person_entry_times = {}
 # get time in dd:mm:yyyy hh:mm:ss
+
 def get_time_now():
     return datetime.now().strftime("%d:%m:%Y %H:%M:%S")
 
@@ -35,14 +41,26 @@ def check_people_ignored():
     try:
         for person_id, deadline in ignore_persons.items():
             if current_time > deadline:
-                ignore_persons.pop(person_id)
+                try:
+                    ignore_persons.pop(person_id)
+                except:
+                    logger.debug('Error removing ignored person')
+                    traceback.print_exc()
+
     except RuntimeError:
-        pass
+        logger.debug('Runtime error in check_people_ignored')
+        traceback.print_exc()
+
 def remove_expired_history(expiry_time):
     current_time = time.time()
     for history_item in history:
         if current_time - history_item["timestamp"] > expiry_time:
-            history.remove(history_item)
+            try:
+                history.remove(history_item)
+            except:
+                logger.debug("Error removing history")
+                traceback.print_exc()
+
 def add_to_history(frame:Image, tracked_objs: list):
     history_entry = {
         "id": len(history),
@@ -52,8 +70,8 @@ def add_to_history(frame:Image, tracked_objs: list):
     }
     history.append(history_entry)
     return history_entry
-    
-# create a video from 
+
+# create a video from
 async def create_video(start: int, end: int, person_id:int):
     if start < 0:
         start = 0
@@ -68,15 +86,14 @@ async def create_video(start: int, end: int, person_id:int):
                 draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
                 font = ImageFont.load_default()
                 draw.text((x1, y1), f"Person {person_id}", font=font, fill="red")
-            else:
-                frames.remove((frame, tracked_objs))
+
     # save video to mp4
     video_name = f"videos/{person_id}-{time.time()}.webm"
-    
+
     video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 5, (video_entries[0]['frame'].width, video_entries[0]['frame'].height))
     for frame in frames:
         video_writer.write(cv2.cvtColor(np.array(frame[0]), cv2.COLOR_RGB2BGR))
-    
+
     video_writer.release()
     # convert video to bytes
     with open(video_name, "rb") as video_file:
@@ -84,16 +101,23 @@ async def create_video(start: int, end: int, person_id:int):
     # upload video to cloud
     video_url = await async_upload_blob(video_bytes, "video/webm")
     return video_url
+
+class ProcessorResult(BaseModel):
+    # All events to be broadcasted to all receivers
+    events: list[Event]
+    # Objects for debugging
+    objects: list[ModelObject]
+
+
 # Put mainly AI code within this function
-async def process_frame(image: Image) -> list[Event]:
+async def process_frame(image: Image) -> ProcessorResult:
     # 1. First model to get objects
-    results = model_yolo.predict(image)
-    events = []
+    objects = model_yolo.predict(image)
+    events: list[Event] = []
 
-
-    frame_id = add_to_history(image, results)['id']
+    frame_id = add_to_history(image, objects)['id']
     current_time = time.time()
-    for obj in results:
+    for obj in objects:
         obj_id = obj.id
         x1, y1, x2, y2 = obj.box
         if obj_id not in person_entry_times:
@@ -102,23 +126,28 @@ async def process_frame(image: Image) -> list[Event]:
         duration = current_time - person_entry_times[obj_id]
         if obj_id in ignore_persons.keys():
             continue
-        
+
         # detect fall
         if is_falling(x1, x2, y1, y2):
             print(f"Person {obj_id} is falling, position: {x1, y1, x2, y2}")
             video = await create_video(frame_id - 50, frame_id, obj_id)
 
-            events.append(Event(type="Fall", url=video, timestamp=get_time_now(), id=str(uuid.uuid4())))
+            events.append(FallEvent(url=video, timestamp=get_time_now(), id=str(uuid.uuid4())))
             ignore_person_for(obj_id, 10)
+
         # detect prolonged time in frame
         if duration > 10:
             video = await create_video(frame_id - 50, frame_id, obj_id)
-            events.append(Event(type="Prolonged Time", url=video, timestamp=get_time_now(), id=str(uuid.uuid4())))
+            events.append(ProlongedTimeEvent(url=video, timestamp=get_time_now(), id=str(uuid.uuid4())))
             ignore_person_for(obj_id, 20)
-        
+
         person_durations[obj_id] = duration
+
     # remove historical data older than 180 seconds
     remove_expired_history(180)
     check_people_ignored()
 
-    return events
+    return ProcessorResult(
+        events=events,
+        objects=objects,
+    )

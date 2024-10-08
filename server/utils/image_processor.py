@@ -1,23 +1,25 @@
 import base64
-from datetime import datetime
 import io
+import traceback
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
-from utils.tracking import process_frame
+from utils.tracking import ProcessorResult, process_frame
 
-from shapes.sender_message import Event
 from utils.external.firestore import EventTable
 
 DOWNSCALE = None
 
-async def process_image(base64_img: str) -> list[Event]:
+async def process_image(base64_img: str) -> ProcessorResult:
     image_data = base64.b64decode(base64_img)
     image = Image.open(io.BytesIO(image_data))
 
-    events = await process_frame(image)
+    result = await process_frame(image)
 
-    for event in events:
-        EventTable.create_event(event)
+    try:
+        for event in result.events:
+            EventTable.create_event(event)
+    except:
+        traceback.print_exc()
 
-    return events
+    return result

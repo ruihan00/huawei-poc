@@ -4,7 +4,7 @@ from typing import Optional
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from shapes.sender_message import SenderMessage, ReceiverImageEvent, ReceiverMessage, ReceiverEventType, ReceiverEventEvent
+from shapes.messages import ReceiverProcessedMessage, ReceiverImageMessage, ReceiverMessage, SenderMessage
 from utils.image_processor import process_image
 from logger import logger
 
@@ -40,23 +40,17 @@ async def websocket_endpoint(ws: WebSocket):
             img = message.image
             base64_img = message.image.split(",")[1]
 
-            image_event = ReceiverImageEvent(image=img, id=host_id)
-            receiver_message = ReceiverMessage(
-                type=ReceiverEventType.IMAGE, data=image_event
-            )
-            await broadcast(receiver_message)
-            events = []
+            await broadcast(ReceiverImageMessage(image=img, id=host_id))
+
+            results = None
             try:
-                events = await process_image(base64_img)
+                results = await process_image(base64_img)
             except Exception as e:
                 logger.error(f"Error processing image: {e}")
-                pass
-            if len(events) > 0:
-                event_event = ReceiverEventEvent(events=events)
-                receiver_message = ReceiverMessage(
-                    type=ReceiverEventType.EVENT, data=event_event
-                )
-                await broadcast(receiver_message)
+
+            if results is not None:
+                await broadcast(ReceiverProcessedMessage(events=results.events, objects=results.objects))
+
             request_time = datetime.fromisoformat(message.timestamp).replace(
                 tzinfo=None
             )  # JS Date is tz-aware
