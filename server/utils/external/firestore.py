@@ -3,7 +3,7 @@ from typing import Optional
 from google.cloud import firestore
 from google.oauth2 import service_account
 
-from shapes.sender_message import Event
+from shapes.events import Event
 
 
 class _EventTable:

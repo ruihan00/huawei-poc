@@ -18,7 +18,8 @@ export default function Receiver() {
   const [latency, setLatency] = useState();
   const [boxes, setBoxes] = useState([]);
   const [image, setImage] = useState({});
-  const handleImageEvent = (data) => {
+
+  const handleImageMessage = (data) => {
     console.log(data);
     const senderId = data.id;
     setImage((prev) => ({
@@ -38,16 +39,17 @@ export default function Receiver() {
       duration: 0, // to prevent auto-close
     });
   };
-  const handleEventEvent = (data) => {
+  const handleEventsMessage = (data) => {
     // edit receiver to handle event events
     for (const event of data.events) {
       console.log(event.type, event);
       openNotification(event);
     }
+    setBoxes(data.objects)
   };
-  const eventHandlers = {
-    image: handleImageEvent,
-    event: handleEventEvent,
+  const messageHandlers = {
+    image: handleImageMessage,
+    events: handleEventsMessage,
   };
   const { sendMessage, lastMessage, readyState } = useWebSocket(
     `${BASE_URL}/receiver`,
@@ -55,7 +57,7 @@ export default function Receiver() {
       filter: () => false, // don't re-render on new websocket msg
       onMessage: (message) => {
         const data = JSON.parse(message.data);
-        eventHandlers[data.type](data.data);
+        messageHandlers[data.type](data);
         sendMessage("ack");
       },
     }
@@ -67,6 +69,12 @@ export default function Receiver() {
     }
   }, [readyState]);
 
+  const drawnBoxes = boxes.map(box => {
+    return <Box x1={box.box[0]} y1={box.box[1]} x2={box.box[2]} y2={box.box[3]}/>
+  })
+
+
+
   return (
     <>
       {contextHolder}
@@ -74,6 +82,7 @@ export default function Receiver() {
         {Object.keys(image).map((senderId) => (
           <div key={senderId}>
             <img id="result" src={image[senderId]} key={senderId} />
+            {drawnBoxes}
             <p>{senderId}</p>
           </div>
         ))}

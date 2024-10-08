@@ -1,7 +1,7 @@
 variable "save-money" {
   description = "Terminate GPU?"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "project_id" {

@@ -8,7 +8,7 @@ from logger import logger
 
 
 @dataclass
-class ModelResult:
+class ModelObject:
     box: tuple[int, int, int, int]
     name: str
     conf: float
@@ -29,7 +29,7 @@ class Model:
         self.model = YOLO(model_path)
         self.model.to(device)
 
-    def predict(self, image: Image) -> list[ModelResult]:
+    def predict(self, image: Image) -> list[ModelObject]:
         try:
             result = self.model.track(image, persist=True)
             boxes = result[0].boxes.xywh.cpu()
@@ -42,7 +42,7 @@ class Model:
                 x, y, w, h = box
                 x1, y1, x2, y2 = int(x - w / 2), int(y - h / 2), int(x + w / 2), int(y + h / 2)
                 logger.debug(f"Box: {x1, y1, x2, y2}, track_id: {track_id}, class: {cls}")
-                detections.append(ModelResult(box=(x1, y1, x2, y2), name="person", conf=1.0, id=int(track_id)))
+                detections.append(ModelObject(box=(x1, y1, x2, y2), name="person", conf=1.0, id=int(track_id)))
         except Exception as e:
             logger.error(f"Error in model prediction: {e}")
             detections = []
