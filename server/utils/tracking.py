@@ -1,6 +1,7 @@
 import base64
 import time
 import io
+import traceback
 
 import numpy as np
 from pydantic import BaseModel
@@ -40,14 +41,26 @@ def check_people_ignored():
     try:
         for person_id, deadline in ignore_persons.items():
             if current_time > deadline:
-                ignore_persons.pop(person_id)
+                try:
+                    ignore_persons.pop(person_id)
+                except:
+                    logger.debug('Error removing ignored person')
+                    traceback.print_exc()
+
     except RuntimeError:
-        pass
+        logger.debug('Runtime error in check_people_ignored')
+        traceback.print_exc()
+
 def remove_expired_history(expiry_time):
     current_time = time.time()
     for history_item in history:
         if current_time - history_item["timestamp"] > expiry_time:
-            history.remove(history_item)
+            try:
+                history.remove(history_item)
+            except:
+                logger.debug("Error removing history")
+                traceback.print_exc()
+
 def add_to_history(frame:Image, tracked_objs: list):
     history_entry = {
         "id": len(history),
@@ -73,8 +86,7 @@ async def create_video(start: int, end: int, person_id:int):
                 draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
                 font = ImageFont.load_default()
                 draw.text((x1, y1), f"Person {person_id}", font=font, fill="red")
-            else:
-                frames.remove((frame, tracked_objs))
+
     # save video to mp4
     video_name = f"videos/{person_id}-{time.time()}.webm"
 
