@@ -9,13 +9,18 @@
 
 .videoPane {
   display: flex;
-  flex-grow: 1;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column; /* Stack contents vertically */
+  justify-content: center; /* Align items to the top */
+  align-items: center; /* Center the video horizontally */
+  width: 70%; /* Adjust width as needed, e.g., 70% for video */
+  padding: 16px; /* Optional padding for better spacing */
 }
 
 .listPane {
-  min-width: 200px;
+  min-width: 200px; /* Ensure the list has a minimum width */
+  width: 30%; /* You can adjust this percentage as needed */
+  padding: 16px; /* Add padding for better appearance */
+  overflow: auto; /* Ensure scrolling if the list is long */
 }
 
 .videoContainer {
@@ -24,8 +29,9 @@
   justify-content: center;
   align-items: center;
   background-color: #fefae0;
-  width: 640px;
-  height: 480px;
+  width: 100%; /* Take full width of the video pane */
+  max-width: 640px; /* Limit the max width */
+  height: auto; /* Auto height to maintain aspect ratio */
   border-radius: 8px;
 }
 

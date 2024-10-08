@@ -68,42 +68,44 @@ const HistoryPage = () => {
           )}
         </div>
       </div>
-      <div
-        id="scrollableDiv"
-        style={{
-          height: 400,
-          overflow: "auto",
-          padding: "0 16px",
-          border: "1px solid rgba(140, 140, 140, 0.35)",
-        }}
-      >
-        <InfiniteScroll
-          dataLength={events.length}
-          next={loadMoreData}
-          hasMore={hasMore}
-          scrollableTarget="scrollableDiv"
+      <div className={styles.listPane}>
+        <div
+          id="scrollableDiv"
+          style={{
+            height: 400,
+            overflow: "auto",
+            padding: "0 16px",
+            border: "1px solid rgba(140, 140, 140, 0.35)",
+          }}
         >
-          <List
-            dataSource={events}
-            renderItem={(item) => (
-              <List.Item
-                key={item.id}
-                onClick={() => showEventDetails(item)}
-                className={selectedEvent && selectedEvent.id === item.id ? styles.selectedItem : ""}
-              >
-                <List.Item.Meta
-                  title={item.eventType}
-                  description={
-                    <>
-                      <p>{item.time}</p>
-                      <p>{item.description}</p>
-                    </>
-                  }
-                />
-              </List.Item>
-            )}
-          />
-        </InfiniteScroll>
+          <InfiniteScroll
+            dataLength={events.length}
+            next={loadMoreData}
+            hasMore={hasMore}
+            scrollableTarget="scrollableDiv"
+          >
+            <List
+              dataSource={events}
+              renderItem={(item) => (
+                <List.Item
+                  key={item.id}
+                  onClick={() => showEventDetails(item)}
+                  className={selectedEvent && selectedEvent.id === item.id ? styles.selectedItem : ""}
+                >
+                  <List.Item.Meta
+                    title={item.eventType}
+                    description={
+                      <>
+                        <p>{item.time}</p>
+                        <p>{item.description}</p>
+                      </>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+          </InfiniteScroll>
+        </div>
       </div>
     </div>
   );
