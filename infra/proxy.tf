@@ -52,7 +52,7 @@ resource "google_compute_url_map" "default" {
 resource "google_compute_backend_service" "client-service" {
   name                  = "client-service"
   protocol              = "HTTP"
-  timeout_sec           = 30
+  timeout_sec           = 3600
   backend {
     group = google_compute_region_network_endpoint_group.client-group.self_link
   }
