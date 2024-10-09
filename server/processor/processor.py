@@ -187,7 +187,8 @@ class Processor:
             objects=objects,
         )
 
-    async def process_image(self, base64_img: str) -> ProcessorResult:
+    async def process_image(self, base64_img: str) -> tuple[ProcessorResult, float]:
+        start = time.time()
         image_data = base64.b64decode(base64_img)
         image = Image.open(io.BytesIO(image_data))
 
@@ -199,4 +200,6 @@ class Processor:
         except:
             traceback.print_exc()
 
-        return result
+        end = time.time()
+
+        return result, (end - start)
