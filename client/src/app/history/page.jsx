@@ -23,7 +23,15 @@ const HistoryPage = () => {
 
   useEffect(() => {
     console.log("Loading initial data...");
-    loadMoreData();
+    const loadData = async () => {
+      await loadMoreData();
+      const storedEvent = sessionStorage.getItem('selectedEvent');
+      if (storedEvent) {
+        setSelectedEvent(JSON.parse(storedEvent));
+      }
+    };
+
+    loadData();
   }, []);
   
   const fetchEvents = async () => {
