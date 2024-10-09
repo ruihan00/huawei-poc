@@ -136,7 +136,7 @@ export default function Sender() {
         </Space.Compact>
       </div>
       {isClient && selectedCameraId && (
-        <Card bodyStyle={{padding: "3px"}}>
+        <Card bodyStyle={{ padding: "3px" }}>
           <div width={640} height={480}>
             <Webcam
               ref={webcamRef}
