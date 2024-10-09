@@ -1,9 +1,11 @@
 "use client";
-import { List, Splitter, Avatar } from "antd";
+import { List, Splitter, Avatar, Layout } from "antd";
 import React, { useState, useEffect } from "react";
 import styles from "./styles.module.css";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { BASE_URL } from "../lib/api";
+
+const { Header, Content, Footer } = Layout;
 
 // Fake data to mock events
 const fakeEvents = Array.from({ length: 50 }, (_, index) => ({
@@ -56,73 +58,83 @@ const HistoryPage = () => {
   };
 
   return (
-    <div style={{
-      backgroundColor: 'white',
-      display: 'flex',
-      height: '100vh',
-      width: '100vw',
-    }}>
-      <Splitter 
-        style={{
-          display: "flex",
-          height: '100%',
-          width: '100%',
-          boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <Splitter.Panel defaultSize='40%' minSize='20%' maxSize='70%'>
-          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f2eed7' }}>
-            {video ? (
-              <div>
-                <h1>ID: {selectedEvent.id}</h1>
-                <video autoPlay={true} controls={true} style={{ maxWidth: '100%', maxHeight: '100%' }}>
-                  <source src={video} type="video/webm" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            ) : (
-              <p>Select an event to view it!</p>
-            )}
-          </div>
-        </Splitter.Panel>
-        <Splitter.Panel style={{ height: '100%', overflow: 'hidden' }}>
-          <div
-            id="scrollableDiv"
+    <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header style={{ background: '#fff', padding: 0, height: '64px' }}>
+        <h1 style={{ margin: 0, padding: '0 16px' }}>Event History</h1>
+      </Header>
+      <Content style={{ padding: '50px' }}>
+        <div style={{
+          padding: 24,
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <Splitter 
             style={{
-              height: '100%',
-              overflow: "auto",
-              padding: "16px",
-              border: "1px solid rgba(140, 140, 140, 0.35)",
+              maxHeight: '70%',
+              boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+              overflow: 'hidden'
             }}
           >
-            <InfiniteScroll
-              dataLength={events.length}
-              next={loadMoreData}
-              hasMore={hasMore}
-              loader={<h4>Loading...</h4>}
-              scrollableTarget="scrollableDiv"
-            >
-              <List
-                dataSource={events}
-                renderItem={(item) => (
-                  <List.Item
-                    key={item.id}
-                    onClick={() => showEventDetails(item)}
-                    className={selectedEvent && selectedEvent.id === item.id ? styles.selectedItem : ""}
-                  >
-                    <List.Item.Meta
-                      avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item.id}`} />}
-                      title={item.eventType}
-                      description={<p>{item.time}</p>}
-                    />
-                  </List.Item>
+            <Splitter.Panel defaultSize='40%' minSize='20%' maxSize='70%'>
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f2eed7' }}>
+                {video ? (
+                  <div>
+                    <h1>ID: {selectedEvent.id}</h1>
+                    <video autoPlay={true} controls={true} style={{ maxWidth: '100%', maxHeight: 'calc(100% - 40px)' }}>
+                      <source src={video} type="video/webm" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                ) : (
+                  <p>Select an event to view it!</p>
                 )}
-              />
-            </InfiniteScroll>
-          </div>
-        </Splitter.Panel>
-      </Splitter>
-    </div>
+              </div>
+            </Splitter.Panel>
+            <Splitter.Panel style={{ height: '100%', overflow: 'hidden' }}>
+              <div
+                id="scrollableDiv"
+                style={{
+                  height: '100%',
+                  overflow: "auto",
+                  padding: "16px",
+                  border: "1px solid rgba(140, 140, 140, 0.35)",
+                }}
+              >
+                <InfiniteScroll
+                  dataLength={events.length}
+                  next={loadMoreData}
+                  hasMore={hasMore}
+                  loader={<h4>Loading...</h4>}
+                  scrollableTarget="scrollableDiv"
+                >
+                  <List
+                    dataSource={events}
+                    renderItem={(item) => (
+                      <List.Item
+                        key={item.id}
+                        onClick={() => showEventDetails(item)}
+                        className={selectedEvent && selectedEvent.id === item.id ? styles.selectedItem : ""}
+                      >
+                        <List.Item.Meta
+                          avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${item.id}`} />}
+                          title={item.eventType}
+                          description={<p>{item.time}</p>}
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </InfiniteScroll>
+              </div>
+            </Splitter.Panel>
+          </Splitter>
+        </div>
+      </Content>
+      <Footer style={{ textAlign: 'center', height: '64px' }}>
+        {/* Add your footer content here */}
+        Event History ©{new Date().getFullYear()} Created by BinaCloud
+      </Footer>
+    </Layout>
   );
 };
 
