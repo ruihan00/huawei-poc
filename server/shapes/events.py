@@ -1,7 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel
 
-class EventType(Enum):
+class EventType(str, Enum):
     FALL = "Fall"
     PROLONGED_TIME = "Prolonged Time"
 
@@ -23,3 +23,10 @@ class ReceiverImageEvent(BaseModel):
 
 class ReceiverEventEvent(BaseModel):
     events: list[Event]
+
+
+class EventCache(BaseModel):
+    event_id: str
+    person_id: int
+    frames_left: int
+    video_frames: list
