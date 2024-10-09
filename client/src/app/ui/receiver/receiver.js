@@ -46,7 +46,7 @@ export default function Receiver() {
       console.log(event.type, event);
       openNotification(event);
     }
-    setBoxes(data.objects)
+    setBoxes(data.objects);
   };
   const messageHandlers = {
     image: handleImageMessage,
@@ -70,11 +70,11 @@ export default function Receiver() {
     }
   }, [readyState]);
 
-  const drawnBoxes = boxes.map(box => {
-    return <Box x1={box.box[0]} y1={box.box[1]} x2={box.box[2]} y2={box.box[3]}/>
-  })
-
-
+  const drawnBoxes = boxes.map((box) => {
+    return (
+      <Box x1={box.box[0]} y1={box.box[1]} x2={box.box[2]} y2={box.box[3]} />
+    );
+  });
 
   return (
     <>

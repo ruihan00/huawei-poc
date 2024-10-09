@@ -5,14 +5,17 @@ from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from shapes.messages import ReceiverProcessedMessage, ReceiverImageMessage, ReceiverMessage, SenderMessage
-from utils.image_processor import process_image
-from logger import logger
+from processor import Processor
+from utils.logger import logger
 
 from utils.external.firestore import EventTable
 import uuid
+
+
 router = APIRouter(prefix="/server")
 senders = {}
 receivers = []
+
 
 @router.get("/healthcheck")
 async def healthcheck():
@@ -24,12 +27,15 @@ async def broadcast(message: ReceiverMessage):
         await receiver.send_text(message.model_dump_json())
 
 @router.websocket("/sender")
-async def websocket_endpoint(ws: WebSocket):
+async def sender(ws: WebSocket):
     await ws.accept()
+
     host = ws.client.host
     host_id = str(uuid.uuid4())
     senders[host_id] = ws
     logger.info(f"Sender {host} connected")
+
+    processor = Processor()
 
     try:
         while True:
@@ -44,7 +50,7 @@ async def websocket_endpoint(ws: WebSocket):
 
             results = None
             try:
-                results = await process_image(base64_img)
+                results = await processor.process_image(base64_img)
             except Exception as e:
                 logger.error(f"Error processing image: {e}")
 
@@ -63,7 +69,7 @@ async def websocket_endpoint(ws: WebSocket):
 
 
 @router.websocket("/receiver")
-async def websocket_endpoint(ws: WebSocket):
+async def receiver(ws: WebSocket):
     await ws.accept()
     host = ws.client.host
 

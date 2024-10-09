@@ -6,6 +6,7 @@ import { Layout } from "antd";
 import PHeader from "../ui/layout/pheader"
 import PFooter from "../ui/layout/pfooter"
 
+
 const { Content } = Layout;
 
 const Page = () => {
@@ -27,7 +28,6 @@ const Page = () => {
       <PFooter title="Camera"/>
     </Layout>
   );
-
 };
 
 export default Page;

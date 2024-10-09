@@ -1,0 +1,17 @@
+services:
+  server:
+    image: hztiang/binacloud-huawei-poc-server
+    pull_policy: always
+    ports:
+      - "8000:8080"
+    volumes:
+      - /huawei-poc/server:/app
+    runtime: nvidia  # Enable GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]  # Request all available GPUs
+      restart_policy:
+        condition: unless-stopped
+

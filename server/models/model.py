@@ -4,7 +4,7 @@ from PIL import Image
 import torch
 from ultralytics import YOLO
 
-from logger import logger
+from utils.logger import logger
 
 
 @dataclass
