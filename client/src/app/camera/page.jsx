@@ -9,6 +9,7 @@ import PFooter from "../ui/layout/pfooter"
 const { Content } = Layout;
 
 const Page = () => {
+
   const [fps, setFps] = useState(1);
 
   return (
@@ -21,11 +22,12 @@ const Page = () => {
           value={fps}
           onChange={(e) => setFps(e.target.value)}
         />
-        <Sender fps={fps} />
+        <Sender />
       </Content>
       <PFooter title="Camera"/>
     </Layout>
   );
+
 };
 
 export default Page;
