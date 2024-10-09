@@ -73,7 +73,7 @@ class Processor:
                     draw.text((x1, y1), f"Person {event_person_id}", font=font, fill="red")
             event.video_frames.append((frame.copy(), latest_tracked_objs))
             video_frmaes = [frame[0] for frame in event.video_frames]
-            
+
             if event.expiry < current_time:
                 asyncio.create_task(asyncio.to_thread(self.generate_video, video_frmaes, event_id))
                 self.event_cache.remove(event)
@@ -180,7 +180,7 @@ class Processor:
         # remove historical data older than 180 seconds
         self.remove_expired_history(180)
         self.check_people_ignored()
-        self.process_events(image, objects)
+        # self.process_events(image, objects)
 
         return ProcessorResult(
             events=events,
