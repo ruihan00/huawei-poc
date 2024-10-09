@@ -1,18 +1,25 @@
 "use client";
-import { List, Splitter, Avatar, Layout } from "antd";
-import React, { useState, useEffect } from "react";
+import { Input, Select, List, Splitter, Avatar, Layout } from "antd";
+import { SearchOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useMemo } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { BASE_URL } from "../lib/api";
+import { FaPersonFalling } from 'react-icons/fa6';
+import { IoTimeOutline } from "react-icons/io5";
+import { FaWheelchair } from "react-icons/fa";
 import PHeader from "../ui/layout/pheader"
 import PFooter from "../ui/layout/pfooter"
 
 const { Content } = Layout;
+const { Option } = Select;
 
 const HistoryPage = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
 
   useEffect(() => {
     console.log("Loading initial data...");
@@ -55,15 +62,26 @@ const HistoryPage = () => {
   const getAvatarByType = (type) => {
     switch (type) {
       case 'Fall':
-        return <Avatar src={'/fall.png'}/>;
+        return <Avatar icon={<FaPersonFalling size={35} style={{backgroundColor: '#4682B4', color: '#FFF', padding: '5px' }} />}/>;
       case 'Prolonged Time':
-        return <Avatar src={'/time.png'}/>;
+        return <Avatar src={<IoTimeOutline size={35} style={{backgroundColor: '#228B22', color: '#FFF', padding: '5px'}} />}/>;
       case 'Mobility Aid':
-        return <Avatar src={'/mobaid.png'}/>;
+        return <Avatar src={<FaWheelchair size={35} style={{backgroundColor: '#DC143C', color: '#FFF', padding: '5px'}} />}/>;
       default:
         return <Avatar />
     }
   };
+
+  const EVENT_TYPES = ['all', 'fall', 'prolonged time', 'mobility aid'];
+
+  const filteredEvents = useMemo(() => {
+    return events.filter(event => {
+      const matchesSearch = event.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            event.type.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFilter = filterType === 'all' || event.type.toLowerCase() === filterType.toLowerCase();
+      return matchesSearch && matchesFilter;
+    });
+  }, [events, searchTerm, filterType]);
 
   return (
     <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -115,8 +133,28 @@ const HistoryPage = () => {
                   border: "1px solid rgba(140, 140, 140, 0.35)",
                 }}
               >
+                <div style={{ padding: '16px', display: 'flex', gap: '10px' }}>
+                  <Input
+                    placeholder="Search events"
+                    prefix={<SearchOutlined />}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ flex: 1 }}
+                  />
+                  <Select
+                    style={{ width: 150 }}
+                    value={filterType}
+                    onChange={setFilterType}
+                  >
+                    {EVENT_TYPES.map(type => (
+                      <Option key={type} value={type}>
+                        {type === 'all' ? 'All Types' : type.charAt(0).toUpperCase() + type.slice(1)}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
                 <InfiniteScroll
-                  dataLength={events.length}
+                  dataLength={filteredEvents.length}
                   next={loadMoreData}
                   hasMore={hasMore}
                   scrollableTarget="scrollableDiv"
@@ -124,7 +162,7 @@ const HistoryPage = () => {
                   style={{ display: 'flex', flexDirection: 'column-reverse' }} 
                 >
                   <List
-                    dataSource={[...events].reverse()}
+                    dataSource={[...filteredEvents].sort((a, b) => new Date(b.time) - new Date(a.time))}
                     renderItem={(item) => (
                       <List.Item
                         key={item.id}
