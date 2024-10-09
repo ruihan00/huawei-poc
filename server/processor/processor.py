@@ -157,7 +157,7 @@ class Processor:
 
             # detect fall
             if is_falling(x1, x2, y1, y2):
-                print(f"Person {obj_id} is falling, position: {x1, y1, x2, y2}")
+                logger.info(f"Person {obj_id} is falling, position: {x1, y1, x2, y2}")
                 event_id = str(uuid.uuid4())
                 current_time = time.time()
                 video, video_frames = self.create_video(frame_id - 50, frame_id, obj_id, event_id)
@@ -187,7 +187,8 @@ class Processor:
             objects=objects,
         )
 
-    async def process_image(self, base64_img: str) -> ProcessorResult:
+    async def process_image(self, base64_img: str) -> tuple[ProcessorResult, float]:
+        start = time.time()
         image_data = base64.b64decode(base64_img)
         image = Image.open(io.BytesIO(image_data))
 
@@ -199,4 +200,6 @@ class Processor:
         except:
             traceback.print_exc()
 
-        return result
+        end = time.time()
+
+        return result, (end - start)
