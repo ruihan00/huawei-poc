@@ -9,8 +9,6 @@ import PFooter from "../ui/layout/pfooter";
 const { Content } = Layout;
 
 const Page = () => {
-  const [fps, setFps] = useState(1);
-
   return (
     <Layout
       style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
@@ -25,12 +23,6 @@ const Page = () => {
           padding: "24px",
         }}
       >
-        <label>FPS</label>
-        <input
-          type="number"
-          value={fps}
-          onChange={(e) => setFps(e.target.value)}
-        />
         <Sender />
       </Content>
       <PFooter title="Camera" />
