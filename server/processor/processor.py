@@ -156,7 +156,7 @@ class Processor:
                 continue
 
             # detect fall
-            if is_falling(x1, x2, y1, y2):
+            if False and is_falling(x1, x2, y1, y2):
                 logger.info(f"Person {obj_id} is falling, position: {x1, y1, x2, y2}")
                 event_id = str(uuid.uuid4())
                 current_time = time.time()
@@ -167,7 +167,7 @@ class Processor:
                 self.ignore_person_for(obj_id, 10)
 
             # detect prolonged time in frame
-            if duration > 10:
+            if False and duration > 10:
                 event_id = str(uuid.uuid4())
                 video, video_frames = self.create_video(frame_id - 50, frame_id, obj_id, event_id)
                 logger.info(f"Time taken to create video: {time.time() - current_time}")
