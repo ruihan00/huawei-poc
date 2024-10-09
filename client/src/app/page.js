@@ -11,13 +11,7 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <label>FPS</label>
-      <input
-        type="number"
-        value={fps}
-        onChange={(e) => setFps(e.target.value)}
-      />
-      <Sender fps={fps} />
+      <Sender />
       <Receiver />
     </main>
   );
