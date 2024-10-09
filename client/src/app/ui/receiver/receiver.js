@@ -34,7 +34,8 @@ export default function Receiver() {
       description: `Event type: ${event.type}`,
       onClick: () => {
         console.log("Notification clicked");
-        window.location.href = event.url;
+        sessionStorage.setItem('selectedEvent', JSON.stringify(event));
+        window.open('/history', '_blank');
       },
       duration: 0, // to prevent auto-close
     });
