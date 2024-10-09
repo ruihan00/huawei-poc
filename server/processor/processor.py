@@ -3,8 +3,9 @@ import io
 import time
 import traceback
 import uuid
+import asyncio
+import datetime
 
-from deep_sort_realtime.deepsort_tracker import DeepSort
 from PIL import Image, ImageDraw, ImageFont
 from pydantic import BaseModel
 from shapes.events import Event, FallEvent, ProlongedTimeEvent, EventCache
@@ -15,7 +16,7 @@ from models import Model
 from models.model import ModelObject
 from shapes.events import Event, FallEvent, ProlongedTimeEvent
 from utils.external.firestore import EventTable
-from utils.external.push import async_upload_blob
+from utils.external.push import async_upload_blob, get_blob_url
 from utils.falling import is_falling
 from utils.logger import logger
 from utils.time import get_formatted_now
@@ -30,7 +31,6 @@ class ProcessorResult(BaseModel):
 class Processor:
     def __init__(self):
         self.model_yolo = Model("models/yolov8n.pt", classes=[0])
-        self.tracker = DeepSort(max_iou_distance=0.5, max_age=30, n_init=3)
         self.ignore_persons = {}
         self.model_mob_aid = Model("models/mob-aid.pt")
         self.history = []
@@ -57,7 +57,9 @@ class Processor:
             logger.debug('Runtime error in check_people_ignored')
             traceback.print_exc()
 
-    async def process_events(self, latest_frame, latest_tracked_objs):
+    def process_events(self, latest_frame, latest_tracked_objs):
+        current_time = time.time()
+
         for event in self.event_cache:
             event_person_id = event.person_id
             event_id = event.event_id
@@ -70,22 +72,28 @@ class Processor:
                     font = ImageFont.load_default()
                     draw.text((x1, y1), f"Person {event_person_id}", font=font, fill="red")
             event.video_frames.append((frame.copy(), latest_tracked_objs))
-            event.frames_left -= 1
-            if event.frames_left <= 0:
-                video_name = f"videos/{event_person_id}-{time.time()}.webm"
+            video_frmaes = [frame[0] for frame in event.video_frames]
+            
+            if event.expiry < current_time:
+                asyncio.create_task(asyncio.to_thread(self.generate_video, video_frmaes, event_id))
+                self.event_cache.remove(event)
 
-                video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 5, (640, 480))
-                for frame in event.video_frames:
-                    video_writer.write(cv2.cvtColor(np.array(frame[0]), cv2.COLOR_RGB2BGR))
+    def generate_video(self, frames, filename):
+        try:
+            video_name = f"videos/{filename}-{time.time()}.webm"
+            logger.info(f"Generating video: {video_name}")
+            video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 5, (640, 480))
+            for frame in frames:
+                video_writer.write(cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR))
 
-                video_writer.release()
-                # convert video to bytes
-                with open(video_name, "rb") as video_file:
-                    video_bytes = video_file.read()
-                # upload video to cloud
-                video_url = await async_upload_blob(video_bytes, "video/webm", filename=event_id)
-
-
+            video_writer.release()
+            # convert video to bytes
+            with open(video_name, "rb") as video_file:
+                video_bytes = video_file.read()
+            # upload video to cloud
+            async_upload_blob(video_bytes, "video/webm", filename)
+        except Exception as e:
+            logger.error(f"Error generating video: {e}")
 
     def remove_expired_history(self, expiry_time):
         current_time = time.time()
@@ -108,7 +116,7 @@ class Processor:
         return history_entry
 
     # create a video from
-    async def create_video(self, start: int, end: int, person_id:int, event_id: str):
+    def create_video(self, start: int, end: int, person_id:int, event_id: str):
         if start < 0:
             start = 0
         video_entries = self.history[start:end]
@@ -123,20 +131,10 @@ class Processor:
                     font = ImageFont.load_default()
                     draw.text((x1, y1), f"Person {person_id}", font=font, fill="red")
 
-        # save video to mp4
-        video_name = f"videos/{person_id}-{time.time()}.webm"
-
-        video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 5, (video_entries[0]['frame'].width, video_entries[0]['frame'].height))
-        for frame in frames:
-            video_writer.write(cv2.cvtColor(np.array(frame[0]), cv2.COLOR_RGB2BGR))
-
-        video_writer.release()
-        # convert video to bytes
-        with open(video_name, "rb") as video_file:
-            video_bytes = video_file.read()
-        # upload video to cloud
-        video_url = await async_upload_blob(video_bytes, "video/webm", event_id)
-        return video_url, frames
+        video_frames = [frame[0] for frame in frames]
+        asyncio.create_task(asyncio.to_thread(self.generate_video, video_frames, event_id))
+        url = get_blob_url(event_id)
+        return url, frames
 
 
     # Put mainly AI code within this function
@@ -161,17 +159,20 @@ class Processor:
             if is_falling(x1, x2, y1, y2):
                 print(f"Person {obj_id} is falling, position: {x1, y1, x2, y2}")
                 event_id = str(uuid.uuid4())
-                video, video_frames = await self.create_video(frame_id - 50, frame_id, obj_id, event_id)
+                current_time = time.time()
+                video, video_frames = self.create_video(frame_id - 50, frame_id, obj_id, event_id)
+                logger.info(f"Time taken to create video: {time.time() - current_time}")
                 events.append(FallEvent(url=video, timestamp=get_formatted_now(), id=event_id))
-                self.event_cache.append(EventCache(event_id=event_id, person_id=obj_id, frames_left=10, video_frames=video_frames))
+                self.event_cache.append(EventCache(event_id=event_id, person_id=obj_id, expiry=time.time() + 6, video_frames=video_frames))
                 self.ignore_person_for(obj_id, 10)
 
             # detect prolonged time in frame
             if duration > 10:
                 event_id = str(uuid.uuid4())
-                video, video_frames = await self.create_video(frame_id - 50, frame_id, obj_id, event_id)
+                video, video_frames = self.create_video(frame_id - 50, frame_id, obj_id, event_id)
+                logger.info(f"Time taken to create video: {time.time() - current_time}")
                 events.append(ProlongedTimeEvent(url=video, timestamp=get_formatted_now(), id=event_id))
-                self.event_cache.append(EventCache(event_id=event_id, person_id=obj_id, frames_left=10, video_frames=video_frames))
+                self.event_cache.append(EventCache(event_id=event_id, person_id=obj_id, expiry=time.time() + 6, video_frames=video_frames))
                 self.ignore_person_for(obj_id, 20)
 
             self.person_durations[obj_id] = duration
@@ -179,7 +180,7 @@ class Processor:
         # remove historical data older than 180 seconds
         self.remove_expired_history(180)
         self.check_people_ignored()
-        await self.process_events(image, objects)
+        self.process_events(image, objects)
 
         return ProcessorResult(
             events=events,
