@@ -24,7 +24,6 @@ ignore_persons = {}
 model_mob_aid = Model("models/mob-aid.pt")
 history = []
 event_cache = []
-
 person_durations = {}
 person_entry_times = {}
 # get time in dd:mm:yyyy hh:mm:ss
@@ -51,24 +50,24 @@ def check_people_ignored():
         logger.debug('Runtime error in check_people_ignored')
         traceback.print_exc()
 
-async def process_events(latest_frame, latest_tracking_objs):
+async def process_events(latest_frame, latest_tracked_objs):
     for event in event_cache:
         event_person_id = event.person_id
         event_id = event.event_id
         frame = latest_frame.copy()
         for obj in latest_tracked_objs:
-            if obj.id == person_id:
+            if obj.id == event_person_id:
                 x1, y1, x2, y2 = obj.box
                 draw = ImageDraw.Draw(frame)
                 draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
                 font = ImageFont.load_default()
-                draw.text((x1, y1), f"Person {person_id}", font=font, fill="red")
-        event.video_frames.append(frame.copy())
+                draw.text((x1, y1), f"Person {event_person_id}", font=font, fill="red")
+        event.video_frames.append((frame.copy(), latest_tracked_objs))
         event.frames_left -= 1
         if event.frames_left <= 0:
-            video_name = f"videos/{person_id}-{time.time()}.webm"
+            video_name = f"videos/{event_person_id}-{time.time()}.webm"
 
-            video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 5, (event.video_frames[0].width, event.video_frames[0].height))
+            video_writer = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc(*'vp80'), 5, (640, 480))
             for frame in event.video_frames:
                 video_writer.write(cv2.cvtColor(np.array(frame[0]), cv2.COLOR_RGB2BGR))
 
@@ -179,6 +178,7 @@ async def process_frame(image: Image) -> ProcessorResult:
     # remove historical data older than 180 seconds
     remove_expired_history(180)
     check_people_ignored()
+    await process_events(image, objects)
 
     return ProcessorResult(
         events=events,
