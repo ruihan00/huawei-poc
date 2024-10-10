@@ -1,9 +1,9 @@
 "use client";
 import Receiver from "../ui/receiver/receiver";
-
+import styles from "./styles.module.css";
 const ReceiverPage = () => {
   return (
-    <div>
+    <div className={styles.main}>
       <Receiver />
     </div>
   );

@@ -4,6 +4,7 @@ import time
 class EventType(str, Enum):
     FALL = "Fall"
     PROLONGED_TIME = "Prolonged Time"
+    MOBILITY_AID = "Mobility Aid"
 
 class Event(BaseModel):
     type: EventType
@@ -16,6 +17,9 @@ class FallEvent(Event):
 
 class ProlongedTimeEvent(Event):
     type: EventType = EventType.PROLONGED_TIME
+
+class MobilityAidEvent(Event):
+    type: EventType = EventType.MOBILITY_AID
 
 class ReceiverImageEvent(BaseModel):
     id: str
