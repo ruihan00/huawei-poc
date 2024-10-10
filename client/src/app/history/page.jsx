@@ -144,20 +144,20 @@ const HistoryPage = () => {
   }, [events, searchTerm, filterType]);
 
   return (
-    <Layout
-      style={{ height: "100vh", display: "flex", flexDirection: "column" }}
-    >
-      <PHeader title="Event History" />
-      <Content style={{ padding: "50px", backgroundColor: "#FFF" }}>
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            height: "calc(100vh - 152px)",
-          }}
-        >
-          <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Layout
+        style={{ height: "100vh", display: "flex", flexDirection: "column" }}
+      >
+        <PHeader title="Event History" />
+        <Content style={{ padding: "50px", backgroundColor: "#FFF" }}>
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              height: "calc(100vh - 152px)",
+            }}
+          >
             <Splitter
               style={{
                 height: "90%",
@@ -270,11 +270,11 @@ const HistoryPage = () => {
                 </div>
               </Splitter.Panel>
             </Splitter>
-          </Suspense>
-        </div>
-      </Content>
-      <PFooter title="Event History" />
-    </Layout>
+          </div>
+        </Content>
+        <PFooter title="Event History" />
+      </Layout>
+    </Suspense>
   );
 };
 
