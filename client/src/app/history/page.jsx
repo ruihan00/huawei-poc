@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from 'next/router'
 import { Input, Select, List, Splitter, Avatar, Layout } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import React, { useState, useEffect, useMemo } from "react";
@@ -20,6 +21,9 @@ const HistoryPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+
+  const router = useRouter();
+  const { eventId } = router.query;
 
   useEffect(() => {
     console.log("Loading initial data...");
