@@ -11,7 +11,9 @@ services:
       resources:
         reservations:
           devices:
-            - capabilities: [gpu]  # Request all available GPUs
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
       restart_policy:
         condition: unless-stopped
 
