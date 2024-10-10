@@ -4,7 +4,7 @@ from google.cloud import firestore
 from google.oauth2 import service_account
 
 from shapes.events import Event
-from utils import logger
+from utils.logger import logger
 
 
 class _EventTable:
@@ -15,6 +15,7 @@ class _EventTable:
         self.client = firestore.Client(credentials=credentials)
 
     def create_event(self, event: Event):
+        logger.debug(f"Creating event: {event}")
         doc_ref = self.client.collection("events").document(event.id)
         doc_ref.set(event.model_dump())
         return doc_ref.id
