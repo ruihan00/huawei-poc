@@ -28,7 +28,8 @@ resource "google_compute_instance" "server" {
 
 resource "google_compute_disk" "boot-disk" {
   name = "server-disk"
+  zone  = "asia-southeast1-a"
   image = "deeplearning-platform-release/common-gpu-v20240922-debian-11"
-  size = 100  # 100 GB, the default of 50 GB is not enough
+  size = 800  # 100 GB, the default of 50 GB is not enough
 }
 
