@@ -20,7 +20,9 @@ class _EventTable:
         return doc_ref.id
 
     def get_events(self) -> list[Event]:
-        docs = self.client.collection("events").stream()
+        docs = (self.client.collection("events")
+                .order_by("timestamp", direction="DESCENDING")
+                .stream())
         return [Event(**doc.to_dict()) for doc in docs]
 
     def get_event_by_id(self, event_id) -> Optional[Event]:
@@ -35,3 +37,8 @@ class _EventTable:
 
 
 EventTable = _EventTable()
+
+if __name__ == '__main__':
+    events = EventTable.get_events()
+    for event in events:
+        print(event.timestamp)
