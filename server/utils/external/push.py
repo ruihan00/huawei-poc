@@ -22,11 +22,10 @@ def async_upload_blob(content: bytes, content_type=None, filename: str ="") -> s
     url = f"https://storage.googleapis.com/{EVENTS_BUCKET_NAME}/{filename}"
     return url
 
+def get_blob_url(filename: str) -> str:
+    return f"https://storage.googleapis.com/{EVENTS_BUCKET_NAME}/{filename}"
 
 if __name__ == "__main__":
     content = f"Hello world #".encode()
     output = asyncio.run(async_upload_blob(content))
     print(output)
-
-def get_blob_url(filename: str) -> str:
-    return f"https://storage.googleapis.com/{EVENTS_BUCKET_NAME}/{filename}"

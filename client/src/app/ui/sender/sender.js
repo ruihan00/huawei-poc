@@ -6,7 +6,7 @@ import { BASE_URL } from "../../lib/api";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { Input, Card, Button, Dropdown, Space } from "antd";
 import { PlusOutlined, MinusOutlined, DownOutlined } from "@ant-design/icons";
-import styles from "./styles.module.css"
+import styles from "./styles.module.css";
 async function getAvailableVideoCameras() {
   try {
     // Request permission to access media devices if not already granted
@@ -136,18 +136,21 @@ export default function Sender() {
         </Space.Compact>
       </div>
       <div className={styles.camera}>
-      {isClient && selectedCameraId && (
-        <Card bodyStyle={{ padding: "3px" }}>
-          <div width={640} height={480}>
-            <Webcam
-              ref={webcamRef}
-              videoConstraints={{ deviceId: selectedCameraId }}
-            />
-          </div>
-        </Card>
-      )}
+        {isClient && selectedCameraId && (
+          <Card bodyStyle={{ padding: "3px" }}>
+            <div width={640} height={480}>
+              <Webcam
+                ref={webcamRef}
+                videoConstraints={{
+                  deviceId: selectedCameraId,
+                  width: 640,
+                  height: 480,
+                }}
+              />
+            </div>
+          </Card>
+        )}
       </div>
-     
     </>
   );
 }
