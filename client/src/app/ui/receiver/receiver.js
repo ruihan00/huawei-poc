@@ -72,9 +72,8 @@ export default function Receiver() {
       icon,
       onClick: () => {
         console.log("Notification clicked");
-        const eventId = event.id;
-        const newUrl = `/history?selectedEvent=${eventId}`;
-        window.open(newUrl, '_blank');
+        sessionStorage.setItem("selectedEvent", JSON.stringify(event));
+        window.open("/history", "_blank");
       },
       duration: 0, // to prevent auto-close
     });
