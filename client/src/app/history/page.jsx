@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from 'next/router'
 import { Input, Select, List, Splitter, Avatar, Layout } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import React, { useState, useEffect, useMemo } from "react";
@@ -10,6 +9,7 @@ import { IoTimeOutline } from "react-icons/io5";
 import { FaWheelchair } from "react-icons/fa";
 import PHeader from "../ui/layout/pheader";
 import PFooter from "../ui/layout/pfooter";
+import { useSearchParams } from "next/navigation";
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -21,22 +21,28 @@ const HistoryPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
-
-  const router = useRouter();
-  const { eventId } = router.query;
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     console.log("Loading initial data...");
     const loadData = async () => {
-      await loadMoreData();
-      const storedEvent = sessionStorage.getItem("selectedEvent");
-      if (storedEvent) {
-        setSelectedEvent(JSON.parse(storedEvent));
-      }
+      await loadMoreData();  // Load the events first
     };
-
+  
     loadData();
-  }, []);
+  }, []); // Empty dependency array means it runs once on mount
+  
+  useEffect(() => {
+    if (events.length > 0) {
+      const eventId = searchParams.get("selectedEvent");
+      if (eventId) {
+        const event = events.find((ev) => ev.id === eventId); // Find the event by ID from the loaded events
+        if (event) {
+          setSelectedEvent(event); // Set the selected event
+        }
+      }
+    }
+  }, [searchParams, events]); // Run this effect when searchParams or events change
 
   const fetchEvents = async () => {
     const response = await fetch(`${BASE_URL}/events`);
