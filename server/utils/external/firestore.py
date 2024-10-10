@@ -4,6 +4,7 @@ from google.cloud import firestore
 from google.oauth2 import service_account
 
 from shapes.events import Event
+from utils import logger
 
 
 class _EventTable:
@@ -27,7 +28,7 @@ class _EventTable:
         doc = doc_ref.get()
 
         if not doc.exists:
-            print(f"No document found for ID: {event_id}")
+            logger.warn(f"No document found for ID: {event_id}")
             return None
 
         return Event(**doc.to_dict())
