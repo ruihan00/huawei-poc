@@ -38,13 +38,35 @@ export default function Receiver() {
 
     switch (event.type) {
       case 'Fall':
-        icon=<FaPersonFalling style={styles.fall}/>
-
+        icon=<FaPersonFalling 
+          size={35}
+          style={{
+            backgroundColor: "#4682B4",
+            color: "#FFF",
+            padding: "5px",
+          }}
+        />
+        break;
       case "Prolonged Time":
-        icon=<IoTimeOutline style={styles.time}/>
-        
+        icon=<IoTimeOutline
+          size={35}
+          style={{
+            backgroundColor: "#228B22",
+            color: "#FFF",
+            padding: "5px",
+          }}
+        />
+        break;
       case "Mobility Aid":
-        icon=<FaWheelchair style={styles.mobaid}/>
+        icon=<FaWheelchair
+          size={35}
+          style={{
+            backgroundColor: "#DC143C",
+            color: "#FFF",
+            padding: "5px",
+          }}
+        />
+        break;
     }
 
     api.info({
