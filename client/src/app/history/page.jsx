@@ -241,6 +241,7 @@ const HistoryPage = () => {
                               : "transparent",
                           transition: "background-color 0.3s",
                           cursor: "pointer",
+                          padding: "16px"
                         }}
                       >
                         <List.Item.Meta
