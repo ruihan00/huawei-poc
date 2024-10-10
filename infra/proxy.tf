@@ -52,7 +52,6 @@ resource "google_compute_url_map" "default" {
 resource "google_compute_backend_service" "client-service" {
   name                  = "client-service"
   protocol              = "HTTP"
-  timeout_sec           = 3600
   backend {
     group = google_compute_region_network_endpoint_group.client-group.self_link
   }
@@ -73,7 +72,7 @@ resource "google_compute_region_network_endpoint_group" "client-group" {
 resource "google_compute_backend_service" "server-service" {
   name                  = "server-service"
   protocol              = "HTTP"
-  timeout_sec           = 30
+  timeout_sec           = 3600
   backend {
     group = google_compute_instance_group.server-group.self_link
   }
@@ -100,4 +99,3 @@ resource "google_compute_http_health_check" "server-health-check" {
   healthy_threshold  = 2
   unhealthy_threshold = 2
 }
-
