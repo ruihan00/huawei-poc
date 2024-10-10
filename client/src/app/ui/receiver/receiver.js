@@ -1,10 +1,14 @@
 "use client";
 import { useRef, useEffect, useCallback, useState } from "react";
-import Webcam from "react-webcam";
 import { BASE_URL } from "../../lib/api";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import Box from "./box";
 import { notification } from "antd";
+import { FaPersonFalling } from "react-icons/fa6";
+import { IoTimeOutline } from "react-icons/io5";
+import { FaWheelchair } from "react-icons/fa";
+import styles from "./receiver.css";
+
 const blobFromBase64String = (base64String) => {
   const byteArray = Uint8Array.from(
     atob(base64String)
@@ -28,10 +32,25 @@ export default function Receiver() {
     }));
   };
   const [api, contextHolder] = notification.useNotification();
+
   const openNotification = (event) => {
+    let icon;
+
+    switch (event.type) {
+      case 'Fall':
+        icon=<FaPersonFalling style={styles.fall}/>
+
+      case "Prolonged Time":
+        icon=<IoTimeOutline style={styles.time}/>
+        
+      case "Mobility Aid":
+        icon=<FaWheelchair style={styles.mobaid}/>
+    }
+
     api.info({
       message: "Alert",
       description: `Event type: ${event.type}`,
+      icon,
       onClick: () => {
         console.log("Notification clicked");
         sessionStorage.setItem("selectedEvent", JSON.stringify(event));

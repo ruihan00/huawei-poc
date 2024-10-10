@@ -1,0 +1,23 @@
+.fall {
+    size: "35px";
+    background-color: "#4682B4";
+    color: "#FFF";
+    padding: "5px";
+    border-radius: '50%';
+}
+
+.time {
+    size: "35px";
+    background-color: "#228B22";
+    color: "#FFF";
+    padding: "5px";
+    border-radius: '50%';
+}
+
+.mobaid {
+    size: "35px";
+    background-color: "#DC143C";
+    color: "#FFF";
+    padding: "5px";
+    border-radius: '50%';
+}
