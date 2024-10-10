@@ -227,9 +227,7 @@ const HistoryPage = () => {
                   style={{ display: "flex", flexDirection: "column-reverse" }}
                 >
                   <List
-                    dataSource={[...filteredEvents].sort(
-                      (a, b) => new Date(b.time) - new Date(a.time)
-                    )}
+                    dataSource={[...filteredEvents]}
                     renderItem={(item) => (
                       <List.Item
                         key={item.id}
