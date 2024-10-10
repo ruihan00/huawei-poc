@@ -26,23 +26,14 @@ const HistoryPage = () => {
   useEffect(() => {
     console.log("Loading initial data...");
     const loadData = async () => {
-      await loadMoreData();  // Load the events first
+      await loadMoreData();
+      const storedEvent = sessionStorage.getItem("selectedEvent");
+      if (storedEvent) {
+        setSelectedEvent(JSON.parse(storedEvent));
+      }
     };
-  
     loadData();
   }, []);
-  
-  useEffect(() => {
-    if (events.length > 0) {
-      const eventId = searchParams.get("selectedEvent");
-      if (eventId) {
-        const event = events.find((ev) => ev.id === eventId); // Find the event by ID from the loaded events
-        if (event) {
-          setSelectedEvent(event); // Set the selected event
-        }
-      }
-    }
-  }, [searchParams, events]); // Run this effect when searchParams or events change
 
   const fetchEvents = async () => {
     const response = await fetch(`${BASE_URL}/events`);
