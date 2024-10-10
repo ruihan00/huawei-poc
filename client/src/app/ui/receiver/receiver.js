@@ -41,8 +41,7 @@ export default function Receiver() {
         icon=<FaPersonFalling 
           size={35}
           style={{
-            backgroundColor: "#4682B4",
-            color: "#FFF",
+            color: "#4682B4",
             padding: "5px",
           }}
         />
@@ -51,8 +50,7 @@ export default function Receiver() {
         icon=<IoTimeOutline
           size={35}
           style={{
-            backgroundColor: "#228B22",
-            color: "#FFF",
+            color: "#228B22",
             padding: "5px",
           }}
         />
@@ -61,8 +59,7 @@ export default function Receiver() {
         icon=<FaWheelchair
           size={35}
           style={{
-            backgroundColor: "#DC143C",
-            color: "#FFF",
+            color: "#DC143C",
             padding: "5px",
           }}
         />
