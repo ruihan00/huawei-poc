@@ -154,7 +154,7 @@ const HistoryPage = () => {
               overflow: "hidden",
             }}
           >
-            <Splitter.Panel defaultSize="40%" minSize="20%" maxSize="70%">
+            <Splitter.Panel defaultSize="60%" minSize="20%" maxSize="70%">
               <div
                 style={{
                   height: "100%",
@@ -168,14 +168,13 @@ const HistoryPage = () => {
               >
                 {selectedEvent ? (
                   <div>
-                    <h1>ID: {selectedEvent.id}</h1>
                     <video
-                      key={selectedEvent.id}
+                      key={`${selectedEvent.id}-${new Date().getTime()}`}
                       autoPlay={true}
                       controls={true}
                       style={{
-                        maxWidth: "100%",
-                        maxHeight: "calc(100% - 40px)",
+                        width: "640px",
+                        height: "480px",
                       }}
                     >
                       <source src={selectedEvent.url} type="video/webm" />
