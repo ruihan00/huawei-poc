@@ -30,7 +30,7 @@ const HistoryPage = () => {
     };
   
     loadData();
-  }, [events]);
+  }, []);
   
   useEffect(() => {
     if (events.length > 0) {
