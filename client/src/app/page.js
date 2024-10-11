@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <Layout style={{ display: "flex", flexDirection: "column" }}>
       <PHeader title="SGTransaid" />
-      <Content style={{ backgroundColor: "#000", color: "#FFF" }}>
+      <Content style={{ backgroundColor: "#FFFFE4", color: "#FFF" }}>
         <main className={styles.main}>
           <Sender />
           <Receiver />
