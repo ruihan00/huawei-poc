@@ -132,7 +132,7 @@ async def sender(ws: WebSocket):
                 f"Compute {compute_sma:.3f}s ({compute_sma / total_sma:.3%})"
             ]))
 
-    except WebSocketDisconnect:
+    except (RuntimeError, WebSocketDisconnect):
         senders.pop(sender.id, None)
         logger.info(f"Sender {sender.host}(id={sender.id}) disconnected")
 
