@@ -167,18 +167,18 @@ class Processor:
                 self.ignore_person_for(obj_id, 10)
 
             # detect prolonged time in frame
-            if duration > 10:
+            if duration > 600:
                 event_id = str(uuid.uuid4())
-                video, video_frames = self.create_video(frame_id - 50, frame_id, obj_id, event_id)
+                video, video_frames = self.create_video(frame_id - 600, frame_id, obj_id, event_id)
                 logger.info(f"Time taken to create video: {time.time() - current_time}")
                 events.append(ProlongedTimeEvent(url=video, timestamp=get_formatted_now(), id=event_id))
                 self.event_cache.append(EventCache(event_id=event_id, person_id=obj_id, expiry=time.time() + 6, video_frames=video_frames))
-                self.ignore_person_for(obj_id, 20)
+                self.ignore_person_for(obj_id, 60)
 
             self.person_durations[obj_id] = duration
 
         # remove historical data older than 180 seconds
-        self.remove_expired_history(180)
+        self.remove_expired_history(600)
         self.check_people_ignored()
         self.process_events(image, objects)
 

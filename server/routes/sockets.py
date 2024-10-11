@@ -4,7 +4,7 @@ import time
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from shapes.messages import ReceiverProcessedMessage, ReceiverImageMessage, ReceiverMessage, SenderMessage
+from shapes.messages import ReceiverAckMessage, ReceiverProcessedMessage, ReceiverImageMessage, ReceiverMessage, SenderMessage
 from processor import Processor
 from utils.image import strip_base64_prefix
 from utils.logger import logger
@@ -27,7 +27,7 @@ class Endpoint:
         start = time.time()
         data = await self.ws.receive_text()
         if ack:
-            await self.send_json({"message": "Received"})
+            await self.send_text(ReceiverAckMessage().model_dump_json())
         end = time.time()
         return data, (end - start)
 
@@ -36,7 +36,7 @@ class Endpoint:
         start = time.time()
         data = await self.ws.receive_json()
         if ack:
-            await self.send_json({"message": "Received"})
+            await self.send_text(ReceiverAckMessage().model_dump_json())
         end = time.time()
         return data, (end - start)
 
