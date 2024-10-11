@@ -32,7 +32,7 @@ class Processor:
     def __init__(self):
         self.model_yolo = Model("models/yolo11n.pt", classes=[0])
         self.ignore_persons = {}
-        self.model_mob_aid = Model("models/mob-aid.pt", classes=[0,2,3,4])
+        # self.model_mob_aid = Model("models/mob-aid.pt")
         self.history = []
         self.event_cache = []
         self.person_durations = {}
@@ -142,10 +142,10 @@ class Processor:
         # 1. First model to get objects
         objects = self.model_yolo.predict(image)
         events: list[Event] = []
-        mobility_aids = self.model_mob_aid.predict(image)
+        # mobility_aids = self.model_mob_aid.predict(image)
         for obj in objects:
             obj.id = str(obj.id)
-        for mobaid in mobility_aids:
+        # for mobaid in mobility_aids:
             mobaid.id = f"mobaid-{mobaid.id}"
         frame_id = self.add_to_history(image, objects + mobility_aids)['id']
         current_time = time.time()
@@ -181,18 +181,18 @@ class Processor:
 
             self.person_durations[obj_id] = duration
 
-        for obj in mobility_aids:
-            event_id = str(uuid.uuid4())
-            obj_id = obj.id
-            if obj_id in self.ignore_persons.keys():
-                continue
-            x1, y1, x2, y2 = obj.box
-            name = obj.name
-            logger.info(f"Mobility aid detected, position: {x1, y1, x2, y2}, id: {obj_id}, name={name}")
-            video, video_frames = self.create_video(frame_id - 30, frame_id, obj_id, event_id)
-            events.append(MobilityAidEvent(name="Wheelchair", url=video, timestamp=get_formatted_now(), id=event_id))
-            self.event_cache.append(EventCache(event_id=event_id, person_id=obj_id, expiry=time.time() + 4, video_frames=video_frames))
-            self.ignore_person_for(obj_id, 30)
+        # for obj in mobility_aids:
+            # event_id = str(uuid.uuid4())
+            # obj_id = obj.id
+            # if obj_id in self.ignore_persons.keys():
+            #     continue
+            # x1, y1, x2, y2 = obj.box
+            # name = obj.name
+            # logger.info(f"Mobility aid detected, position: {x1, y1, x2, y2}, id: {obj_id}, name={name}")
+            # video, video_frames = self.create_video(frame_id - 30, frame_id, obj_id, event_id)
+            # events.append(MobilityAidEvent(name="Wheelchair", url=video, timestamp=get_formatted_now(), id=event_id))
+            # self.event_cache.append(EventCache(event_id=event_id, person_id=obj_id, expiry=time.time() + 4, video_frames=video_frames))
+            # self.ignore_person_for(obj_id, 30)
 
 
             
