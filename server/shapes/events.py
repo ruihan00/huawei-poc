@@ -32,6 +32,6 @@ class ReceiverEventEvent(BaseModel):
 
 class EventCache(BaseModel):
     event_id: str
-    person_id: int
+    person_id: str
     expiry: float
     video_frames: list

@@ -8,7 +8,7 @@ import datetime
 
 from PIL import Image, ImageDraw, ImageFont
 from pydantic import BaseModel
-from shapes.events import Event, FallEvent, ProlongedTimeEvent, EventCache
+from shapes.events import Event, FallEvent, ProlongedTimeEvent, EventCache, MobilityAidEvent
 import cv2
 import numpy as np
 
@@ -143,6 +143,8 @@ class Processor:
         objects = self.model_yolo.predict(image)
         events: list[Event] = []
         mobility_aids = self.model_mob_aid.predict(image)
+        for obj in objects:
+            obj.id = str(obj.id)
         for mobaid in mobility_aids:
             mobaid.id = f"mobaid-{mobaid.id}"
         frame_id = self.add_to_history(image, objects + mobility_aids)['id']
@@ -178,16 +180,17 @@ class Processor:
                 self.ignore_person_for(obj_id, 60)
 
             self.person_durations[obj_id] = duration
+
         for obj in mobility_aids:
+            event_id = str(uuid.uuid4())
             obj_id = obj.id
             x1, y1, x2, y2 = obj.box
             name = obj.name
             logger.info(f"Mobility aid detected, position: {x1, y1, x2, y2}, id: {obj_id}, name={name}")
-            events.append(MobilityAidEvent(name=name))
             video, video_frames = self.create_video(frame_id - 30, frame_id, obj_id, event_id)
+            events.append(MobilityAidEvent(name="Wheelchair", url=video, timestamp=get_formatted_now(), id=event_id))
             self.event_cache.append(EventCache(event_id=event_id, person_id=obj_id, expiry=time.time() + 4, video_frames=video_frames))
-
-
+            self.ignore_person_for(obj_id, 30)
 
 
             

@@ -34,40 +34,46 @@ export default function Receiver() {
   const [api, contextHolder] = notification.useNotification();
 
   notification.config({
-    placement: 'topRight',
+    placement: "topRight",
     maxCount: 5,
   });
-  
+
   const openNotification = (event) => {
     let icon;
 
     switch (event.type) {
-      case 'Fall':
-        icon=<FaPersonFalling
-          size={40}
-          style={{
-            color: "#4682B4",
-            paddingRight: "10px",
-          }}
-        />
+      case "Fall":
+        icon = (
+          <FaPersonFalling
+            size={40}
+            style={{
+              color: "#4682B4",
+              paddingRight: "10px",
+            }}
+          />
+        );
         break;
       case "Prolonged Time":
-        icon=<IoTimeOutline
-          size={40}
-          style={{
-            color: "#228B22",
-            paddingRight: "10px",
-          }}
-        />
+        icon = (
+          <IoTimeOutline
+            size={40}
+            style={{
+              color: "#228B22",
+              paddingRight: "10px",
+            }}
+          />
+        );
         break;
       case "Mobility Aid":
-        icon=<FaWheelchair
-          size={40}
-          style={{
-            color: "#DC143C",
-            paddingRight: "10px",
-          }}
-        />
+        icon = (
+          <FaWheelchair
+            size={40}
+            style={{
+              color: "#DC143C",
+              paddingRight: "10px",
+            }}
+          />
+        );
         break;
     }
 
@@ -129,7 +135,12 @@ export default function Receiver() {
       <div id="container" style={{ position: "relative" }}>
         {Object.keys(image).map((senderId) => (
           <div key={senderId}>
-            <img id="result" style={{width: "640px", height: "480px"}} src={image[senderId]} key={senderId} />
+            <img
+              id="result"
+              style={{ width: "640px", height: "480px" }}
+              src={image[senderId]}
+              key={senderId}
+            />
             {drawnBoxes}
           </div>
         ))}
