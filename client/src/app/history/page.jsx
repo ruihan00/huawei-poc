@@ -138,7 +138,7 @@ const HistoryPage = () => {
       style={{ height: "100vh", display: "flex", flexDirection: "column" }}
     >
       <PHeader title="Event History" />
-      <Content style={{ padding: "50px", backgroundColor: "#FFF" }}>
+      <Content style={{ padding: "50px", backgroundColor: "#DBDBDB" }}>
         <div
           style={{
             flex: 1,
