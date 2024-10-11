@@ -146,8 +146,8 @@ class Processor:
         for obj in objects:
             obj.id = str(obj.id)
         # for mobaid in mobility_aids:
-            mobaid.id = f"mobaid-{mobaid.id}"
-        frame_id = self.add_to_history(image, objects + mobility_aids)['id']
+            # mobaid.id = f"mobaid-{mobaid.id}"
+        frame_id = self.add_to_history(image, objects)['id']
         current_time = time.time()
         for obj in objects:
             obj_id = obj.id
