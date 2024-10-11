@@ -45,7 +45,7 @@ export default function Receiver() {
       case "Fall":
         icon = (
           <FaPersonFalling
-            size={40}
+            size={60}
             style={{
               color: "#4682B4",
               paddingRight: "10px",
@@ -56,7 +56,7 @@ export default function Receiver() {
       case "Prolonged Time":
         icon = (
           <IoTimeOutline
-            size={40}
+            size={60}
             style={{
               color: "#228B22",
               paddingRight: "10px",
@@ -67,7 +67,7 @@ export default function Receiver() {
       case "Mobility Aid":
         icon = (
           <FaWheelchair
-            size={40}
+            size={60}
             style={{
               color: "#DC143C",
               paddingRight: "10px",
@@ -79,8 +79,8 @@ export default function Receiver() {
     }
 
     notification.info({
-      message: <strong>Alert</strong>,
-      description: `Event type: ${name}`,
+      message: <strong style={{ paddingLeft: '30px' }}>Alert</strong>,
+      description: <div style={{ paddingLeft: '30px' }}>Event type: {name}</div>,
       icon,
       onClick: () => {
         console.log("Notification clicked");
