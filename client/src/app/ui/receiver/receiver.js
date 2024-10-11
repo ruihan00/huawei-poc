@@ -131,7 +131,6 @@ export default function Receiver() {
           <div key={senderId}>
             <img id="result" style={{width: "640px", height: "480px"}} src={image[senderId]} key={senderId} />
             {drawnBoxes}
-            <p>{senderId}</p>
           </div>
         ))}
       </div>
