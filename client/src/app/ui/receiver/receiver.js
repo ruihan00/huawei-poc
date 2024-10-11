@@ -44,35 +44,35 @@ export default function Receiver() {
     switch (event.type) {
       case 'Fall':
         icon=<FaPersonFalling
-          size={35}
+          size={40}
           style={{
             color: "#4682B4",
-            padding: "5px",
+            paddingRight: "10px",
           }}
         />
         break;
       case "Prolonged Time":
         icon=<IoTimeOutline
-          size={35}
+          size={40}
           style={{
             color: "#228B22",
-            padding: "5px",
+            paddingRight: "10px",
           }}
         />
         break;
       case "Mobility Aid":
         icon=<FaWheelchair
-          size={35}
+          size={40}
           style={{
             color: "#DC143C",
-            padding: "5px",
+            paddingRight: "10px",
           }}
         />
         break;
     }
 
     notification.info({
-      message: "Alert",
+      message: <strong>Alert</strong>,
       description: `Event type: ${event.type}`,
       icon,
       onClick: () => {
