@@ -87,7 +87,7 @@ export default function Receiver() {
         sessionStorage.setItem("selectedEvent", JSON.stringify(event));
         window.open("/history", "_blank");
       },
-      duration: 60, // to prevent auto-close
+      duration: 30, // to prevent auto-close
     });
   };
   const handleEventsMessage = (data) => {
