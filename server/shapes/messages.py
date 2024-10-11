@@ -12,6 +12,7 @@ class SenderMessage(BaseModel):
 class ReceiverMessageType(Enum):
     IMAGE = "image"
     EVENTS = "events"
+    ACK = "ack"
 
 class ReceiverMessage(BaseModel):
     type: ReceiverMessageType
@@ -26,3 +27,6 @@ class ReceiverProcessedMessage(ReceiverMessage):
     events: list[Event]
     # Raw result from the Stage 1 model, for debugging purposes
     objects: list[ModelObject]
+
+class ReceiverAckMessage(ReceiverMessage):
+    type: ReceiverMessageType = ReceiverMessageType.ACK
