@@ -40,7 +40,7 @@ export default function Receiver() {
 
   const openNotification = (event) => {
     let icon;
-
+    let name = event.type;
     switch (event.type) {
       case "Fall":
         icon = (
@@ -74,12 +74,13 @@ export default function Receiver() {
             }}
           />
         );
+        name = "Mobility Aid (Wheelchair)";
         break;
     }
 
     notification.info({
       message: <strong>Alert</strong>,
-      description: `Event type: ${event.type}`,
+      description: `Event type: ${name}`,
       icon,
       onClick: () => {
         console.log("Notification clicked");
