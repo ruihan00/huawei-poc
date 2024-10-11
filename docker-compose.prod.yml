@@ -1,7 +1,6 @@
 services:
   server:
-    image: hztiang/binacloud-huawei-poc-server
-    pull_policy: always
+    image: on-server  # Use the one built on server!!!!
     ports:
       - "8000:8080"
     volumes:
