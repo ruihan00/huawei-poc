@@ -33,6 +33,11 @@ export default function Receiver() {
   };
   const [api, contextHolder] = notification.useNotification();
 
+  notification.config({
+    placement: 'topRight',
+    maxCount: 5,
+  });
+  
   const openNotification = (event) => {
     let icon;
 
@@ -66,7 +71,7 @@ export default function Receiver() {
         break;
     }
 
-    api.info({
+    notification.info({
       message: "Alert",
       description: `Event type: ${event.type}`,
       icon,
@@ -75,7 +80,7 @@ export default function Receiver() {
         sessionStorage.setItem("selectedEvent", JSON.stringify(event));
         window.open("/history", "_blank");
       },
-      duration: 0, // to prevent auto-close
+      duration: 60, // to prevent auto-close
     });
   };
   const handleEventsMessage = (data) => {
