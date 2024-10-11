@@ -38,7 +38,7 @@ export default function Receiver() {
 
     switch (event.type) {
       case 'Fall':
-        icon=<FaPersonFalling 
+        icon=<FaPersonFalling
           size={35}
           style={{
             color: "#4682B4",
@@ -96,7 +96,11 @@ export default function Receiver() {
       filter: () => false, // don't re-render on new websocket msg
       onMessage: (message) => {
         const data = JSON.parse(message.data);
-        messageHandlers[data.type](data);
+        const handler = messageHandlers[data.type];
+        if (!handler) {
+          return;
+        }
+        handler(data);
         sendMessage("ack");
       },
     }
