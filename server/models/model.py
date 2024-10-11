@@ -41,8 +41,10 @@ class Model:
                     continue
                 x, y, w, h = box
                 x1, y1, x2, y2 = int(x - w / 2), int(y - h / 2), int(x + w / 2), int(y + h / 2)
-                logger.debug(f"Box: {x1, y1, x2, y2}, track_id: {track_id}, class: {cls}")
-                detections.append(ModelObject(box=(x1, y1, x2, y2), name="person", conf=1.0, id=int(track_id)))
+                name = result[0].names[cls]
+                detections.append(ModelObject(box=(x1, y1, x2, y2), name=name, conf=1.0, id=int(track_id)))
+                logger.debug(f"Box: {x1, y1, x2, y2}, track_id: {track_id}, class: {name}")
+
         except Exception as e:
             logger.error(f"Error in model prediction: {e}")
             detections = []

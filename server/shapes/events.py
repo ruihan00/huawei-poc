@@ -20,6 +20,7 @@ class ProlongedTimeEvent(Event):
 
 class MobilityAidEvent(Event):
     type: EventType = EventType.MOBILITY_AID
+    name: str
 
 class ReceiverImageEvent(BaseModel):
     id: str
