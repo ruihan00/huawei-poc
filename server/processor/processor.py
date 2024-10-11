@@ -184,6 +184,8 @@ class Processor:
         for obj in mobility_aids:
             event_id = str(uuid.uuid4())
             obj_id = obj.id
+            if obj_id in self.ignore_persons.keys():
+                continue
             x1, y1, x2, y2 = obj.box
             name = obj.name
             logger.info(f"Mobility aid detected, position: {x1, y1, x2, y2}, id: {obj_id}, name={name}")
