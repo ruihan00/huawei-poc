@@ -30,9 +30,9 @@ class ProcessorResult(BaseModel):
 
 class Processor:
     def __init__(self):
-        self.model_yolo = Model("models/yolov8n.pt", classes=[0])
+        self.model_yolo = Model("models/yolo11n.pt", classes=[0])
         self.ignore_persons = {}
-        self.model_mob_aid = Model("models/mob-aid.pt")
+        self.model_mob_aid = Model("models/mob-aid.pt", classes=[0,2,3,4])
         self.history = []
         self.event_cache = []
         self.person_durations = {}
@@ -142,8 +142,10 @@ class Processor:
         # 1. First model to get objects
         objects = self.model_yolo.predict(image)
         events: list[Event] = []
-
-        frame_id = self.add_to_history(image, objects)['id']
+        mobility_aids = self.model_mob_aid.predict(image)
+        for mobaid in mobility_aids:
+            mobaid.id = f"mobaid-{mobaid.id}"
+        frame_id = self.add_to_history(image, objects + mobility_aids)['id']
         current_time = time.time()
         for obj in objects:
             obj_id = obj.id
@@ -176,6 +178,19 @@ class Processor:
                 self.ignore_person_for(obj_id, 60)
 
             self.person_durations[obj_id] = duration
+        for obj in mobility_aids:
+            obj_id = obj.id
+            x1, y1, x2, y2 = obj.box
+            name = obj.name
+            logger.info(f"Mobility aid detected, position: {x1, y1, x2, y2}, id: {obj_id}, name={name}")
+            events.append(MobilityAidEvent(name=name))
+            video, video_frames = self.create_video(frame_id - 30, frame_id, obj_id, event_id)
+            self.event_cache.append(EventCache(event_id=event_id, person_id=obj_id, expiry=time.time() + 4, video_frames=video_frames))
+
+
+
+
+            
 
         # remove historical data older than 180 seconds
         self.remove_expired_history(600)
